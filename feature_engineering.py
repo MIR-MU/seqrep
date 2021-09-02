@@ -36,5 +36,5 @@ class PreviousValuesExtractor(FeatureExtractor):
 
     def transform(self, X, y=None):            # TODO: solve nan
         for column in X.columns:
-            X[f"{column}_shift={self.shift}"] = X[column].shift(self.shift).fillna(X[column][0])
+            X.loc[:, f"{column}_shift={self.shift}"] = X[column].shift(self.shift).fillna(X[column][0])
         return X
