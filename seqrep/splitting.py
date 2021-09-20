@@ -1,6 +1,6 @@
 import abc
 from sklearn.model_selection import train_test_split
-from utils import Picklable
+from .utils import Picklable
 
 class Splitter(abc.ABC, Picklable):
     

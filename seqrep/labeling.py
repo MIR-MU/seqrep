@@ -3,7 +3,7 @@ import pandas as pd
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
-from utils import Picklable
+from .utils import Picklable
 
 class Labeler(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
     

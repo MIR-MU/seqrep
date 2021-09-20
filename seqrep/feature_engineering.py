@@ -2,7 +2,7 @@ import abc
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
-from utils import Picklable
+from .utils import Picklable
 
 class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
 

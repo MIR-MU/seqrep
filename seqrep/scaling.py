@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 import sklearn.preprocessing
 
-from utils import Picklable
+from .utils import Picklable
 
 class Scaler(abc.ABC, Picklable):
 

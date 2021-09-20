@@ -1,8 +1,8 @@
 import datetime
 
-from labeling import Labeler
-from splitting import Splitter
-from evaluation import Evaluator
+from .labeling import Labeler
+from .splitting import Splitter
+from .evaluation import Evaluator
 
 
 class PipelineEvaluator():
