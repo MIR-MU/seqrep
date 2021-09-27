@@ -1,4 +1,7 @@
 # SeqRep
+[![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![Check Markdown links](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml)
 
 *Scientific framework for representation in sequential data*
 
@@ -54,11 +57,9 @@ pipe_eval = PipelineEvaluator(labeler = NextColorLabeler(),
 result = pipe_eval.run(data=data)
 ```
 
-
-
 ## License
 
-MIT
+[MIT](LICENSE)
 
 ## Acknowledgement
 
