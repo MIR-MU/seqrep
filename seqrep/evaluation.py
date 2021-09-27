@@ -7,6 +7,9 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 class Evaluator(abc.ABC):
+    """
+    Class for evaluation of results.
+    """
 
     def __init__(self, threshold=None):
         self.threshold = threshold
@@ -22,10 +25,32 @@ class Evaluator(abc.ABC):
     
     @abc.abstractmethod
     def evaluate(self, y_true, y_pred):
+        """
+        Calculates some metrics from y_true, y_pred.
+        
+        Parameters
+        ----------
+        y_true : list
+            Ground truth data (original/unseen labels).
+
+        y_pred : list
+            Predictions of the trained model
+        
+        Returns
+        -------
+        results : list
+            List of calculated metric values.
+        """
         raise NotImplemented()
 
 
 class ClassificationEvaluator(Evaluator):
+    """
+    Evaluator for classification results.
+
+    ClassificationEvaluator calculates accuracy, precision, recall and 
+    confusion metrix.
+    """
 
     def __init__(self, threshold=None):
         self.threshold = threshold
@@ -54,6 +79,12 @@ class ClassificationEvaluator(Evaluator):
 
 
 class RegressionEvaluator(Evaluator): 
+    """
+    Evaluator for regression results.
+
+    RegressionEvaluator calculates Mean Absolute Error, Mean Squared Error 
+    (and its root) and R2 score.
+    """
     
     def visualize(self):
         pass # TODO

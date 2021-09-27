@@ -6,6 +6,11 @@ except ModuleNotFoundError:
 # import icecream as ic
 
 class Picklable():
+    """
+    Simple class for saving (and loading) functionality
+    using pickle.
+    """
+
     def save(self, name=None, concat=False):
         if name is None:
             name = self.__class__.__name__

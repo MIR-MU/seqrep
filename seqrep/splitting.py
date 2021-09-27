@@ -3,6 +3,9 @@ from sklearn.model_selection import train_test_split
 from .utils import Picklable
 
 class Splitter(abc.ABC, Picklable):
+    """
+    Abstract class for splitting dataset.
+    """
     
     def fit(self, X, y=None, **fit_params):
         return self
@@ -13,6 +16,9 @@ class Splitter(abc.ABC, Picklable):
 
 
 class TrainTestSplitter(Splitter):
+    """
+    Splitting to train and test taken from scikit-learn.model_selection.
+    """
 
     def __init__(self, test_size=None, train_size=None, random_state=None, shuffle=False, stratify=None):
         self.test_size = test_size

@@ -6,6 +6,9 @@ from .evaluation import Evaluator
 
 
 class PipelineEvaluator():
+    """
+    PipelineEvaluator contains all modules and triggers them.
+    """
 
     def __init__(self, labeler: Labeler, splitter: Splitter, pipeline, 
                  evaluator: Evaluator, verbose=True):
@@ -16,10 +19,33 @@ class PipelineEvaluator():
         self.verbose = verbose
 
     def _log(self, text):
+        """
+        Print actual time and provided text if verobse is True.
+
+        Parameters
+        ----------
+        text: string
+            Comment added to printed time.
+        """
+
         if self.verbose:
             print(datetime.datetime.now().time(), text)
     
     def run(self, data):
+        """
+        Run each module on provided data.
+
+        Parameters
+        ----------
+            data: array-like
+                Data to evaluate the pipeline on.
+
+        Returns
+        -------
+        y_pred : list
+            List of predicted values on the test-data subset.
+        """
+
         self._log("Labeling data")
         labels = self.labeler.transform(data)
         self._log("Splitting data")

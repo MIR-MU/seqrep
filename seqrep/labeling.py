@@ -6,6 +6,9 @@ from sklearn.base import BaseEstimator
 from .utils import Picklable
 
 class Labeler(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
+    """
+    Create labels to dataset.
+    """
     
     def fit(self, X, y=None, **fit_params):
         return self
@@ -20,6 +23,10 @@ class Labeler(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
 
 
 class NextColorLabeler(Labeler):
+    """
+    NextColorLabeler applies binary labeling (0 or 1) based on the next candle 
+    if it is bullish or bearish.
+    """
 
     def __init__(self, column_start='open', column_end='close'):
         self.column_start = column_start
@@ -41,7 +48,8 @@ class NextColorLabeler(Labeler):
 class RegressionLabeler(Labeler):
 
     def __init__(self, duration: int = 1):
-        """Parameters
+        """
+        Parameters
         ----------
         duration: int
             Maximal length for reaching label value
@@ -65,10 +73,14 @@ class RegressionLabeler(Labeler):
 
 
 class ClassificationLabeler(Labeler):
+    """
+    ClassificationLabeler applies ternary labeling according to future values.
+    """
 
     def __init__(self, duration: int = 1, target_profit: float = 20, stop_loss: float = 15,
                  pip_size: float = 0.0001):
-        """Parameters
+        """
+        Parameters
         ----------
         duration: int
             Maximal length for reaching label value,
