@@ -2,6 +2,9 @@ import abc
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
+import pandas_ta as ta
+# import talib
+
 from .utils import Picklable
 
 class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
@@ -69,7 +72,7 @@ class TimeFeaturesExtractor(FeatureExtractor):
     Attributes
     ----------
     intervals : list (string enum)
-        List of datetime attributes
+        List of datetime attributes.
     """
 
     def __init__(self, intervals: list = None):
@@ -79,3 +82,29 @@ class TimeFeaturesExtractor(FeatureExtractor):
         for interval in self.intervals:
             X.loc[:, interval] = getattr(X.index, interval)
         return X
+
+
+class PandasTAExtractor(FeatureExtractor):
+    """
+    Add Pandas TA features.
+
+    Attributes
+    ----------
+    intervals : list (string enum)
+        List of desired indicators.
+    """
+
+    def __init__(self, indicators: list = None):
+        self.indicators = pd.DataFrame().ta.indicators(as_list=True) if indicators is None else indicators
+
+    def transform(self, X, y=None):
+        cumulative_indicators = ["log_return", "percent_return", "trend_return"]
+        for indicator in tqdm(self.indicators, leave=False, 
+                              desc="Calculating Pandas TA indicators"):
+            try:
+                X.ta(kind=indicator, append=True,
+                     cumulative = (indicator in cumulative_indicators))
+            except:
+                # print("\nError with indicator:", indicator)
+                pass
+        return X.dropna(1) # TODO: solve NaN values
