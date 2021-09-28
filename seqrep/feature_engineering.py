@@ -60,3 +60,22 @@ class PreviousValuesExtractor(FeatureExtractor):
         for column in X.columns:
             X.loc[:, f"{column}_shift={self.shift}"] = X[column].shift(self.shift).fillna(X[column][0])
         return X
+
+
+class TimeFeaturesExtractor(FeatureExtractor):
+    """
+    Add time features.
+
+    Attributes
+    ----------
+    intervals : list (string enum)
+        List of datetime attributes
+    """
+
+    def __init__(self, intervals: list = None):
+        self.intervals = ['minute', 'hour', 'weekday', 'day', 'weekofyear', 'month', 'year'] if intervals is None else intervals
+
+    def transform(self, X, y=None):
+        for interval in self.intervals:
+            X.loc[:, interval] = getattr(X.index, interval)
+        return X
