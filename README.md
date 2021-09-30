@@ -2,6 +2,7 @@
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 [![Check Markdown links](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/SimpleClassificationExample.ipynb)
 
 *Scientific framework for representation in sequential data*
 
