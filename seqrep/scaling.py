@@ -1,6 +1,7 @@
 import abc
 from typing import List, Tuple
 
+import pandas as pd
 import sklearn.preprocessing
 
 from .utils import Picklable
@@ -67,6 +68,11 @@ class Scaler(abc.ABC, Picklable):
         """
         raise NotImplemented()
 
+    def fit_transform(self, X, y=None):
+        # TODO
+        self.fit(X, y)
+        return self.transform(X, y)
+
 
 class StandardScaler(Scaler):
     """
@@ -81,10 +87,16 @@ class StandardScaler(Scaler):
         return self.scaler.fit(X)
 
     def transform(self, X, y=None):
-        return self.scaler.transform(X)
+        # return self.scaler.transform(X)
+        return pd.DataFrame(self.scaler.transform(X),
+                            columns=X.columns,
+                            index=X.index)
 
     def inverse_transform(self, X, y=None):
-        return self.scaler.inverse_transform(X)
+        # return self.scaler.inverse_transform(X)
+        return pd.DataFrame(self.scaler.inverse_transform(X),
+                            columns=X.columns,
+                            index=X.index)
 
 class UniversalScaler(Scaler):
     """
@@ -95,10 +107,18 @@ class UniversalScaler(Scaler):
         self.scaler = scaler
     
     def fit(self, X, y=None, **fit_params):
-        return self.scaler.fit(X)
+        Xt = X
+        return self.scaler.fit(Xt)
 
     def transform(self, X, y=None):
-        return self.scaler.transform(X)
+        # return self.scaler.transform(X)
+        Xt = X
+        return pd.DataFrame(self.scaler.transform(Xt),
+                            columns=X.columns,
+                            index=X.index)
 
     def inverse_transform(self, X, y=None):
-        return self.scaler.inverse_transform(X)
+        # return self.scaler.inverse_transform(X)
+        return pd.DataFrame(self.scaler.inverse_transform(X),
+                            columns=X.columns,
+                            index=X.index)
