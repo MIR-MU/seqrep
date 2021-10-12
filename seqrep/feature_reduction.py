@@ -1,4 +1,5 @@
 import abc
+from typing import Optional, Union
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
@@ -16,10 +17,9 @@ class FeatureReductor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         Number or proportion of features to select.
     """
 
-    def __init__(self, number:float = 1):
+    def __init__(self, number: Optional[Union[int, float]] = 1):
         self.number = number
 
-    @abc.abstractmethod
     def fit(self, X, y=None, **fit_params):
         """
         Fits the selected method.
@@ -36,7 +36,9 @@ class FeatureReductor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         self: object
             Fitted reductor.
         """
-        return NotImplemented()
+        if self.number <= 1:
+            self.number = int(X.shape[1] * self.number)
+        return self
 
     @abc.abstractmethod
     def transform(self, X, y=None):
@@ -57,7 +59,7 @@ class FeatureReductor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
 
 class  FeatureImportanceSelector(FeatureReductor):
     """
-    Selects features based on feature importance
+    Selects features based on feature importance.
     
     Attributes
     ----------
@@ -83,6 +85,8 @@ class  FeatureImportanceSelector(FeatureReductor):
         self: object
             Fitted reductor.
         """
+        super(FeatureImportanceSelector, self).fit(X)
+
         self.model.fit(X, y)
         importances = self.model.feature_importances_
         features = dict(zip(X.columns, importances))

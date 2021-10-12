@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 
 from .labeling import Labeler
 from .splitting import Splitter
@@ -14,14 +15,16 @@ class PipelineEvaluator():
     def __init__(self, labeler: Labeler, splitter: Splitter, 
                  pipeline: Pipeline = None, 
                  feature_reductor: FeatureReductor = None, model = None, 
-                 evaluator: Evaluator = None, 
-                 verbose: bool=True):
+                 evaluator: Evaluator = None,
+                 dropna: bool = True,
+                 verbose: bool = True):
         self.labeler = labeler
         self.splitter = splitter
         self.pipeline = pipeline
         self.feature_reductor = feature_reductor
         self.model = model
         self.evaluator = evaluator
+        self.dropna = dropna
         self.verbose = verbose
 
     def _log(self, text) -> None:
@@ -37,6 +40,26 @@ class PipelineEvaluator():
         if self.verbose:
             print(datetime.datetime.now().time().strftime('%H:%M:%S.%f')[:-3],
                   text)
+            
+    def _drop_na(self, X: pd.DataFrame, y: pd.Series) -> (pd.DataFrame, pd.Series):
+        """
+        Drop rows with NaN values from begining.
+
+        Returns
+        -------
+        X, y : tupple (pd.DataFrame, pd.Series)
+            X as data (with features) and y as labels.
+        """
+
+        original_shape = X.shape
+        X.dropna(axis=1, thresh=int(X.shape[0]*0.9), inplace=True)
+        cut_number = X.isna().sum().max()
+        X = X.iloc[cut_number:, :] 
+        if X.isna().sum().sum() > 0:
+            X = X.dropna(axis=0)
+        y = y.loc[X.index]
+        self._log(f"\tOriginal shape:\t\t{original_shape}; \n\t\tshape after removing NaNs: {X.shape}.")
+        return X, y
     
     def run(self, data):
         """
@@ -44,7 +67,7 @@ class PipelineEvaluator():
 
         Parameters
         ----------
-        data: array-like
+        data : array-like
             Data to evaluate the pipeline on.
 
         Returns
@@ -65,7 +88,10 @@ class PipelineEvaluator():
             self._log("Applying pipeline transformations")
             X_test = self.pipeline.transform(X_test)
 
-
+        if self.dropna:
+            X_train, y_train = self._drop_na(X=X_train, y=y_train)
+            X_test, y_test = self._drop_na(X=X_test, y=y_test)
+            
         if self.feature_reductor is not None:
             self._log("Applying feature reduction")
             self.feature_reductor.fit(X_train, y_train)            

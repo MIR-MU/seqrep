@@ -1,16 +1,18 @@
 import abc
+import pandas as pd
+
+from tqdm.auto import tqdm
+import pandas_ta as ta
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
-import pandas_ta as ta
 # import talib
 
 from .utils import Picklable
 
 class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
     """
-    Class for implementation of feature extraction and feature selection 
-    functionality.
+    Class for implementation of feature extraction functionality.
     """
 
     def fit(self, X, y=None, **fit_params):
@@ -33,7 +35,7 @@ class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         raise NotImplemented()
 
 
-class FeatureSelector(FeatureExtractor):
+class FeatureSelectorExtractor(FeatureExtractor):
     """
     Select choosen features based on its names.
     """
@@ -59,9 +61,9 @@ class PreviousValuesExtractor(FeatureExtractor):
     def __init__(self, shift: int = None):
         self.shift = 1 if shift is None else shift
 
-    def transform(self, X, y=None):            # TODO: solve nan
+    def transform(self, X, y=None):
         for column in X.columns:
-            X.loc[:, f"{column}_shift={self.shift}"] = X[column].shift(self.shift).fillna(X[column][0])
+            X.loc[:, f"{column}_shift={self.shift}"] = X[column].shift(self.shift)
         return X
 
 
@@ -107,4 +109,4 @@ class PandasTAExtractor(FeatureExtractor):
             except:
                 # print("\nError with indicator:", indicator)
                 pass
-        return X.dropna(1) # TODO: solve NaN values
+        return X
