@@ -1,8 +1,11 @@
 import abc
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import TransformerMixin
+from sklearn.base import BaseEstimator
+
 from .utils import Picklable
 
-class Splitter(abc.ABC, Picklable):
+class Splitter(abc.ABC, TransformerMixin, BaseEstimator, Picklable):
     """
     Abstract class for splitting dataset.
     """
