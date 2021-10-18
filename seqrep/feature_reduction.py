@@ -4,6 +4,8 @@ from typing import Optional, Union
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LogisticRegression
 
 from .utils import Picklable
 
@@ -97,7 +99,7 @@ class FeatureSelector(FeatureReductor):
         return X[selected_columns]
 
 
-class  FeatureImportanceSelector(FeatureSelector):
+class FeatureImportanceSelector(FeatureSelector):
     """
     Selects features based on feature importance.
     
@@ -135,7 +137,7 @@ class  FeatureImportanceSelector(FeatureSelector):
         return self
 
 
-class  UnivariateFeatureSelector(FeatureSelector):
+class UnivariateFeatureSelector(FeatureSelector):
     """
     Selects features based on univariate statistical tests.
 
@@ -174,6 +176,54 @@ class  UnivariateFeatureSelector(FeatureSelector):
         selector = SelectKBest(score_func=self.score_func)
         selector.fit(X, y)
         features = dict(zip(X.columns, selector.scores_))
+        self.sorted_features = sorted(((value, key) for (key,value) in features.items()),
+                                      reverse=True)
+        return self
+
+
+class RFESelector(FeatureSelector):
+    """
+    Selects features based on Recursive Feature Elimination.
+
+    This selector is based on 
+    https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html
+    
+    Attributes
+    ----------
+    score_func : callable, default=f_classif
+        Function taking two arrays X and y, and returning a pair of arrays
+        (scores, pvalues) or a single array with scores.
+        Default is f_classif. The default function only
+        works with classification tasks.    
+
+    sorted_features: list
+        List of pairs (value, feature_name) where the value specifies 
+        the score of the feature.
+    """
+
+    def __init__(self, number, estimator=LogisticRegression(solver='lbfgs', 
+                                                            multi_class='auto', 
+                                                            max_iter=280)):
+        self.estimator = estimator
+        super(RFESelector, self).__init__(number)
+    
+    def fit(self, X, y, **fit_params):
+        """
+        Calculates the univariate scores and save them with the feature names 
+        in a list.
+
+        Returns
+        -------
+        self: object
+            Fitted selector.
+        """
+        super(RFESelector, self).fit(X)
+
+        selector = RFE(self.estimator, 1)
+        selector.fit(X, y)
+        
+        values = 1 - (selector.ranking_/max(selector.ranking_))
+        features = dict(zip(X.columns, values))
         self.sorted_features = sorted(((value, key) for (key,value) in features.items()),
                                       reverse=True)
         return self
