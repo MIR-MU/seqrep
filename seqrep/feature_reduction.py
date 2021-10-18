@@ -3,6 +3,7 @@ from typing import Optional, Union
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
+from sklearn.feature_selection import SelectKBest, f_classif
 
 from .utils import Picklable
 
@@ -103,4 +104,60 @@ class  FeatureImportanceSelector(FeatureReductor):
         X: array-like of shape  (n_samples, n_transformed_features)
             Data with selected features.
         """
-        return X[[name for (_, name) in self.sorted_features][:self.number]]
+        selected_columns = [name for (_, name) in self.sorted_features][:self.number]
+        return X[selected_columns]
+
+
+class  UnivariateFeatureSelector(FeatureReductor):
+    """
+    Selects features based on univariate statistical tests.
+
+    This selector is based on 
+    https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectKBest.html#sklearn.feature_selection.SelectKBest.
+    
+    Attributes
+    ----------
+    score_func : callable, default=f_classif
+        Function taking two arrays X and y, and returning a pair of arrays
+        (scores, pvalues) or a single array with scores.
+        Default is f_classif. The default function only
+        works with classification tasks.    
+
+    sorted_features: list
+        List of pairs (value, feature_name) where the value specifies 
+        the score of the feature.
+    """
+
+    def __init__(self, number, score_func=f_classif):
+        self.score_func = score_func
+        super(UnivariateFeatureSelector, self).__init__(number)
+    
+    def fit(self, X, y, **fit_params):
+        """
+        Train model and save the list of features with their importances.
+
+        Returns
+        -------
+        self: object
+            Fitted selector.
+        """
+        super(UnivariateFeatureSelector, self).fit(X)
+
+        selector = SelectKBest(score_func=self.score_func)
+        selector.fit(X, y)
+        features = dict(zip(X.columns, selector.scores_))
+        self.sorted_features = sorted(((value, key) for (key,value) in features.items()),
+                                      reverse=True)
+        return self
+        
+    def transform(self, X, y=None):
+        """
+        Transforms features according to fitted list of them.
+
+        Returns
+        -------
+        X: array-like of shape  (n_samples, n_transformed_features)
+            Data with selected features.
+        """
+        selected_columns = [name for (_, name) in self.sorted_features][:self.number]
+        return X[selected_columns]
