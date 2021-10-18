@@ -11,6 +11,49 @@ class FeatureReductor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
     """
     Class for implementation of feature reduction (selection or transformation)
     functionality.
+    """
+    def fit(self, X, y=None, **fit_params):
+        """
+        Fits the selected method.
+        
+        Parameters
+        ----------
+        X: iterable
+            Features for selection.
+        y: iterable
+            Labels for selection.
+        
+        Returns
+        -------
+        self: object
+            Fitted reductor.
+        """
+        return self
+
+    @abc.abstractmethod
+    def transform(self, X, y=None):
+        """
+        Extract or select features.
+        
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+        raise NotImplemented()
+
+
+# ############################################################################
+# ########################### FEATURE SELECTION ##############################
+# ############################################################################
+
+class FeatureSelector(FeatureReductor):
+    """
+    Metalass for implementation of feature selection functionality.
 
     Attributes
     ----------
@@ -41,24 +84,20 @@ class FeatureReductor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
             self.number = int(X.shape[1] * self.number)
         return self
 
-    @abc.abstractmethod
     def transform(self, X, y=None):
         """
-        Extract or select features.
-        
-        Parameters
-        ----------
-        X : iterable
-            Data to transform.
-        
+        Transforms features according to the fitted list of them.
+
         Returns
         -------
-        Xt : array-like of shape  (n_samples, n_transformed_features)
+        X: array-like of shape  (n_samples, n_transformed_features)
+            Data with selected features.
         """
-        raise NotImplemented()
+        selected_columns = [name for (_, name) in self.sorted_features][:self.number]
+        return X[selected_columns]
 
 
-class  FeatureImportanceSelector(FeatureReductor):
+class  FeatureImportanceSelector(FeatureSelector):
     """
     Selects features based on feature importance.
     
@@ -94,21 +133,9 @@ class  FeatureImportanceSelector(FeatureReductor):
         self.sorted_features = sorted(((value, key) for (key,value) in features.items()), 
                                       reverse=True)
         return self
-        
-    def transform(self, X, y=None):
-        """
-        Transforms features according to fitted list of them.
-
-        Returns
-        -------
-        X: array-like of shape  (n_samples, n_transformed_features)
-            Data with selected features.
-        """
-        selected_columns = [name for (_, name) in self.sorted_features][:self.number]
-        return X[selected_columns]
 
 
-class  UnivariateFeatureSelector(FeatureReductor):
+class  UnivariateFeatureSelector(FeatureSelector):
     """
     Selects features based on univariate statistical tests.
 
@@ -134,7 +161,8 @@ class  UnivariateFeatureSelector(FeatureReductor):
     
     def fit(self, X, y, **fit_params):
         """
-        Train model and save the list of features with their importances.
+        Calculates the univariate scores and save them with the feature names 
+        in a list.
 
         Returns
         -------
@@ -149,15 +177,3 @@ class  UnivariateFeatureSelector(FeatureReductor):
         self.sorted_features = sorted(((value, key) for (key,value) in features.items()),
                                       reverse=True)
         return self
-        
-    def transform(self, X, y=None):
-        """
-        Transforms features according to fitted list of them.
-
-        Returns
-        -------
-        X: array-like of shape  (n_samples, n_transformed_features)
-            Data with selected features.
-        """
-        selected_columns = [name for (_, name) in self.sorted_features][:self.number]
-        return X[selected_columns]
