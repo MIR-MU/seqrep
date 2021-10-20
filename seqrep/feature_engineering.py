@@ -1,11 +1,13 @@
 import abc
 import pandas as pd
-
-from tqdm.auto import tqdm
-import pandas_ta as ta
-
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
+from tqdm.auto import tqdm
+# Finance
+import pandas_ta as ta
+# Health care
+from hrvanalysis.extract_features import get_time_domain_features, get_geometrical_features, get_frequency_domain_features, get_csi_cvi_features, get_poincare_plot_features, get_sampen
+
 # import talib
 
 from .utils import Picklable
@@ -86,6 +88,10 @@ class TimeFeaturesExtractor(FeatureExtractor):
         return X
 
 
+# ############################################################################
+# ##########################  FINANCE FEATURES  ##############################
+# ############################################################################
+
 class PandasTAExtractor(FeatureExtractor):
     """
     Add Pandas TA features.
@@ -109,4 +115,55 @@ class PandasTAExtractor(FeatureExtractor):
             except:
                 # print("\nError with indicator:", indicator)
                 pass
+        return X
+
+
+# ############################################################################
+# ########################  HEALTH CARE FEATURES  ############################
+# ############################################################################
+
+class HRVExtractor(FeatureExtractor):
+    """
+    Add Heart Rate Variability analysis features.
+
+    Attributes
+    ----------
+    window : int
+        Size of window (number of items - i.e. rows) for calculation of statistics.
+    columns : list
+        Columns from which to be calculated new features.
+    methods : list
+        List of funkcions from hrvanalysis.extract_features to be used.
+    """
+
+    def __init__(self, window: int = 10,
+                 columns: list = None,
+                 methods: list = [get_time_domain_features, 
+                                  get_geometrical_features,
+                                  get_frequency_domain_features,
+                                  get_csi_cvi_features,
+                                  get_poincare_plot_features,
+                                  get_sampen]
+                 ):
+        self.window = window
+        self.columns = columns
+        self.methods = methods
+
+    def transform(self, X, y=None):
+        if self.columns is None:
+            self.columns = X.columns[-1]
+        statistics = []
+        for i in trange(self.window, X.shape[0], 1, leave=False, desc="Calculating features"):
+            start = X.index[i - self.window] 
+            stop = X.index[i]
+            columns_results = {}
+            for column in tqdm(self.columns, leave=False, desc="Calculating columns"):
+                methods_results = {}
+                for method in tqdm(self.methods, leave=False, desc="Calculating methods"):
+                    methods_results.update(method(X.loc[start:stop, column]))
+                methods_results = {k + f"-{column}": v for k, v in methods_results.items()}
+                columns_results.update(methods_results)
+            statistics.append(columns_results)
+        X = X.join(pd.DataFrame(statistics, index=X.index[self.window:]))
+        X.replace([np.inf, -np.inf], np.nan, inplace=True)
         return X
