@@ -1,4 +1,6 @@
 import abc
+import numpy as np
+import pandas as pd
 
 from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix
 from sklearn.metrics import classification_report, precision_score, recall_score
@@ -19,9 +21,9 @@ class Evaluator(abc.ABC):
             return y_pred.argmax(1)
         return (y_pred > self.threshold).argmax(1)
 
-    @abc.abstractmethod
-    def visualize(self):
-        raise NotImplemented()
+    # @abc.abstractmethod
+    # def visualize(self):
+    #     raise NotImplemented()
     
     @abc.abstractmethod
     def evaluate(self, y_true, y_pred):
@@ -44,6 +46,36 @@ class Evaluator(abc.ABC):
         raise NotImplemented()
 
 
+class UniversalEvaluator(Evaluator):
+    """
+    Evaluator which calculates provided metrics.
+
+    Attdibutes:
+    ----------
+    metrics : list
+        List of metrics - functions which evaluates y_true, y_pred.
+    verbose : bool
+        If True, the results are printed.
+    """
+
+    def __init__(self, metrics: list, verbose: bool = True):
+        self.metrics = metrics
+        self.verbose = verbose
+
+    def evaluate(self, y_true, y_pred):
+        """
+        This function calculates provided metrics.
+        It prints and returns their results.
+        """
+        results = []
+        for metric in self.metrics:
+            res = metric(y_true, y_pred)
+            results.append(res)
+            if self.verbose:
+                res = str(res).replace('\n', '\n\t')
+                print(f"{metric.__name__}:\n\t{res}")
+        return results
+
 class ClassificationEvaluator(Evaluator):
     """
     Evaluator for classification results.
@@ -51,9 +83,6 @@ class ClassificationEvaluator(Evaluator):
     ClassificationEvaluator calculates accuracy, precision, recall and 
     confusion metrix.
     """
-
-    def __init__(self, threshold=None):
-        self.threshold = threshold
 
     def visualize(self):
         pass # TODO
