@@ -5,6 +5,7 @@ from sklearn.base import BaseEstimator
 from tqdm.auto import tqdm
 # Finance
 import pandas_ta as ta
+from ta import add_volume_ta, add_volatility_ta, add_trend_ta, add_momentum_ta, add_others_ta, add_all_ta_features
 # Health care
 from hrvanalysis.extract_features import get_time_domain_features, get_geometrical_features, get_frequency_domain_features, get_csi_cvi_features, get_poincare_plot_features, get_sampen
 
@@ -117,6 +118,93 @@ class PandasTAExtractor(FeatureExtractor):
                 pass
         return X
 
+
+class TAExtractor(FeatureExtractor):
+    """
+    Feature extractor based on technical analysis indicators from TA library:
+    https://github.com/bukosabino/ta
+
+    Attributes:
+    ----------
+    all : bool
+        If True, all TA features are calculated.
+    volume : bool
+        If True, volume features are added.
+    volatility : bool
+        If True, volatility features are added.
+    trend : bool
+        If True, trend features are added.
+    momentum : bool
+        If True, momentum features are added.
+    others : bool
+        If True, others features are added.
+    fillna : bool
+        If True, fill nan values.
+    colprefix : str
+        Prefix column names inserted.
+    """
+
+    def __init__(self, all: bool = False,
+                 volume: bool = False,
+                 volatility: bool = False,
+                 trend: bool = False,
+                 momentum: bool = False,
+                 others: bool = False,
+        
+                 fillna: bool = False,
+                 colprefix: str = ""):
+
+        self.all = all
+        self.volume = volume
+        self.volatility = volatility
+        self.trend = trend
+        self.momentum = momentum
+        self.others = others
+
+        self.fillna = fillna
+        self.colprefix = colprefix
+
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Calculates features (technical indicators).
+        
+        Parameters
+        ----------
+        X : iterable
+            Data in OHLCV format.
+        
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+            Dataset with calculated features.
+        """
+        if self.all:
+            return add_all_ta_features(df=X, 
+                                       open="open", high="high", 
+                                       low="low", close="close", volume="volume", 
+                                       fillna=self.fillna, colprefix=self.colprefix)
+        if self.volume:
+            X = add_volume_ta(df=X,
+                              high="high", low="low", 
+                              close="close", volume="volume",
+                              fillna=self.fillna, colprefix=self.colprefix)
+        if self.volatility:
+            X = add_volatility_ta(df=X, 
+                                  high="high", low="low", close="close", 
+                                  fillna=self.fillna, colprefix=self.colprefix)
+        if self.trend:
+            X = add_trend_ta(df=X, 
+                             high="high", low="low", close="close", 
+                             fillna=self.fillna, colprefix=self.colprefix)
+        if self.momentum:
+            X = add_momentum_ta(df=X,
+                                high="high", low="low", 
+                                close="close", volume="volume",
+                                fillna=self.fillna, colprefix=self.colprefix)
+        if self.others:
+            X = add_others_ta(df=X, close="close", 
+                              fillna=self.fillna, colprefix=self.colprefix)
+        return X
 
 # ############################################################################
 # ########################  HEALTH CARE FEATURES  ############################
