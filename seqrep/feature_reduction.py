@@ -223,3 +223,39 @@ class RFESelector(FeatureSelector):
         features = dict(zip(values, X.columns))
         self.sorted_features = sorted(features.items(), reverse=True)
         return self
+
+
+class VarianceSelector(FeatureSelector):
+    """
+    Selects features based on their variances.
+
+    This selector is based on 
+    https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html.
+    
+    Attributes
+    ----------
+    sorted_features: list
+        List of pairs (value, feature_name) where the value specifies 
+        the score of the feature.
+    """
+
+    def __init__(self, number, score_func=f_classif):
+        self.score_func = score_func
+        super(VarianceSelector, self).__init__(number)
+    
+    def fit(self, X, y, **fit_params):
+        """
+        Calculates the variances and save them with the feature names in a list.
+
+        Returns
+        -------
+        self: object
+            Fitted selector.
+        """
+        super(VarianceSelector, self).fit(X)
+
+        selector = VarianceThreshold()
+        selector.fit(X, y)
+        features = dict(zip(selector.variances_, X.columns))
+        self.sorted_features = sorted(features.items(), reverse=True)
+        return self
