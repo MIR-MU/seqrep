@@ -3,6 +3,7 @@
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
 [![Check Markdown links](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/SimpleClassificationExample.ipynb)
+[![CodeFactor](https://www.codefactor.io/repository/github/mir-mu/seqrep/badge/main)](https://www.codefactor.io/repository/github/mir-mu/seqrep/overview/main)
 
 *Scientific framework for representation in sequential data*
 
@@ -57,6 +58,7 @@ pipe_eval = PipelineEvaluator(labeler = NextColorLabeler(),
 # 3. step
 result = pipe_eval.run(data=data)
 ```
+See the [examples folder](examples) for more examples.
 
 ## License
 
