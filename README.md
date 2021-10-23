@@ -38,27 +38,30 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
 
-from seqrep.feature_engineering import PreviousValuesExtractor
+from seqrep.feature_engineering import PreviousValuesExtractor, TimeFeaturesExtractor
 from seqrep.labeling import NextColorLabeler
 from seqrep.splitting import TrainTestSplitter
+from seqrep.scaling import UniversalScaler
 from seqrep.evaluation import ClassificationEvaluator
 from seqrep.pipeline_evaluation import PipelineEvaluator
 
 # 1. step
 pipe = Pipeline([('fext_prev', PreviousValuesExtractor()),
-                 ('scale', MinMaxScaler()),
-                 ('svc', SVC()),
+                 ('fext_time', TimeFeaturesExtractor()),
+                 ('scale_u', UniversalScaler(scaler=MinMaxScaler())),
                  ])
+
 # 2. step
 pipe_eval = PipelineEvaluator(labeler = NextColorLabeler(),
                               splitter = TrainTestSplitter(),
                               pipeline = pipe,
+                              model = SVC(),
                               evaluator = ClassificationEvaluator(),
                               )
 # 3. step
 result = pipe_eval.run(data=data)
 ```
-See the [examples folder](examples) for more examples.
+See the [examples folder](examples) for more details.
 
 ## License
 
