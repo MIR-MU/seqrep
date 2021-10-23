@@ -4,7 +4,7 @@ from typing import Optional, Union
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.feature_selection import RFE
+from sklearn.feature_selection import RFE, VarianceThreshold
 from sklearn.linear_model import LogisticRegression
 
 from .utils import Picklable
@@ -46,7 +46,7 @@ class FeatureReductor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         -------
         Xt : array-like of shape  (n_samples, n_transformed_features)
         """
-        raise NotImplemented()
+        raise NotImplementedError
 
 
 # ############################################################################
@@ -131,9 +131,8 @@ class FeatureImportanceSelector(FeatureSelector):
 
         self.model.fit(X, y)
         importances = self.model.feature_importances_
-        features = dict(zip(X.columns, importances))
-        self.sorted_features = sorted(((value, key) for (key,value) in features.items()), 
-                                      reverse=True)
+        features = dict(zip(importances, X.columns))
+        self.sorted_features = sorted(features.items(), reverse=True)
         return self
 
 
@@ -175,9 +174,8 @@ class UnivariateFeatureSelector(FeatureSelector):
 
         selector = SelectKBest(score_func=self.score_func)
         selector.fit(X, y)
-        features = dict(zip(X.columns, selector.scores_))
-        self.sorted_features = sorted(((value, key) for (key,value) in features.items()),
-                                      reverse=True)
+        features = dict(zip(selector.scores_, X.columns))
+        self.sorted_features = sorted(features.items(), reverse=True)
         return self
 
 
@@ -190,13 +188,12 @@ class RFESelector(FeatureSelector):
     
     Attributes
     ----------
-    score_func : callable, default=f_classif
-        Function taking two arrays X and y, and returning a pair of arrays
-        (scores, pvalues) or a single array with scores.
-        Default is f_classif. The default function only
-        works with classification tasks.    
+    estimator : ``Estimator`` instance
+        A supervised learning estimator with a ``fit`` method that provides
+        information about feature importance
+        (e.g. `coef_`, `feature_importances_`).
 
-    sorted_features: list
+    sorted_features : list
         List of pairs (value, feature_name) where the value specifies 
         the score of the feature.
     """
@@ -209,7 +206,7 @@ class RFESelector(FeatureSelector):
     
     def fit(self, X, y, **fit_params):
         """
-        Calculates the univariate scores and save them with the feature names 
+        Calculates the feature importances and save them with the feature names 
         in a list.
 
         Returns
@@ -223,7 +220,6 @@ class RFESelector(FeatureSelector):
         selector.fit(X, y)
         
         values = 1 - (selector.ranking_/max(selector.ranking_))
-        features = dict(zip(X.columns, values))
-        self.sorted_features = sorted(((value, key) for (key,value) in features.items()),
-                                      reverse=True)
+        features = dict(zip(values, X.columns))
+        self.sorted_features = sorted(features.items(), reverse=True)
         return self
