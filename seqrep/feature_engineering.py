@@ -35,7 +35,7 @@ class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         -------
         Xt : array-like of shape  (n_samples, n_transformed_features)
         """
-        raise NotImplemented()
+        raise NotImplementedError
 
 
 class FeatureSelectorExtractor(FeatureExtractor):
@@ -144,22 +144,22 @@ class TAExtractor(FeatureExtractor):
         Prefix column names inserted.
     """
 
-    def __init__(self, all: bool = False,
-                 volume: bool = False,
-                 volatility: bool = False,
-                 trend: bool = False,
-                 momentum: bool = False,
-                 others: bool = False,
+    def __init__(self, all_features: bool = False,
+                 volume_features: bool = False,
+                 volatility_features: bool = False,
+                 trend_features: bool = False,
+                 momentum_features: bool = False,
+                 others_features: bool = False,
         
                  fillna: bool = False,
                  colprefix: str = ""):
 
-        self.all = all
-        self.volume = volume
-        self.volatility = volatility
-        self.trend = trend
-        self.momentum = momentum
-        self.others = others
+        self.all_features = all_features
+        self.volume_features = volume_features
+        self.volatility_features = volatility_features
+        self.trend_features = trend_features
+        self.momentum_features = momentum_features
+        self.others_features = others_features
 
         self.fillna = fillna
         self.colprefix = colprefix
@@ -178,30 +178,30 @@ class TAExtractor(FeatureExtractor):
         Xt : array-like of shape  (n_samples, n_transformed_features)
             Dataset with calculated features.
         """
-        if self.all:
+        if self.all_features:
             return add_all_ta_features(df=X, 
                                        open="open", high="high", 
                                        low="low", close="close", volume="volume", 
                                        fillna=self.fillna, colprefix=self.colprefix)
-        if self.volume:
+        if self.volume_features:
             X = add_volume_ta(df=X,
                               high="high", low="low", 
                               close="close", volume="volume",
                               fillna=self.fillna, colprefix=self.colprefix)
-        if self.volatility:
+        if self.volatility_features:
             X = add_volatility_ta(df=X, 
                                   high="high", low="low", close="close", 
                                   fillna=self.fillna, colprefix=self.colprefix)
-        if self.trend:
+        if self.trend_features:
             X = add_trend_ta(df=X, 
                              high="high", low="low", close="close", 
                              fillna=self.fillna, colprefix=self.colprefix)
-        if self.momentum:
+        if self.momentum_features:
             X = add_momentum_ta(df=X,
                                 high="high", low="low", 
                                 close="close", volume="volume",
                                 fillna=self.fillna, colprefix=self.colprefix)
-        if self.others:
+        if self.others_features:
             X = add_others_ta(df=X, close="close", 
                               fillna=self.fillna, colprefix=self.colprefix)
         return X
