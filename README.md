@@ -13,7 +13,8 @@ This package aims to simplify the workflow of **evaluation of machine learning m
 
 - labeling data,
 - splitting data,
-- **feature extraction** (or selection),
+- **feature extraction**,
+- feature reduction (i.e. selection or transformation),
 - running pipeline,
 - evaluation of results.
 
