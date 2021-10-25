@@ -24,6 +24,8 @@ The framework is designed for easy customization and extension of its functional
 ```bash
 python -m pip install git+https://github.com/MIR-MU/seqrep
 ```
+## Features
+See the `README` in the [seqrep folder](seqrep).
 
 ## Usage
 
