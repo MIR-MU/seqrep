@@ -46,12 +46,8 @@ class FeatureSelectorExtractor(FeatureExtractor):
     def __init__(self, ordered_features: list, n: int = None):
         self.ordered_features = ordered_features
         self.n = n
-        # ic(self.ordered_features)
     
     def transform(self, X, y=None):
-        # ic(self.ordered_features)
-        # X = X.loc[:, self.ordered_features[:self.n]] #.copy()
-        # return X.loc[:, self.ordered_features[:self.n]]
         X.drop(columns=[col for col in X.columns if col not in self.ordered_features], inplace=True)
         return X[self.ordered_features]
 
@@ -110,12 +106,8 @@ class PandasTAExtractor(FeatureExtractor):
         cumulative_indicators = ["log_return", "percent_return", "trend_return"]
         for indicator in tqdm(self.indicators, leave=False, 
                               desc="Calculating Pandas TA indicators"):
-            try:
-                X.ta(kind=indicator, append=True,
-                     cumulative = (indicator in cumulative_indicators))
-            except:
-                # print("\nError with indicator:", indicator)
-                pass
+            X.ta(kind=indicator, append=True,
+                    cumulative = (indicator in cumulative_indicators))
         return X
 
 
