@@ -1,5 +1,5 @@
 import abc
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
@@ -48,6 +48,56 @@ class FeatureReductor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         """
         raise NotImplementedError
 
+
+class SequentialFeatureReductor(FeatureReductor):
+    """
+    This reductor sequentialy triggers the entered reductors.
+
+    Attributes
+    ----------
+    reductors_list: list
+        List of FeatureReductors.
+    """
+    def __init__(self, reductors_list: List[FeatureReductor]):
+        self.reductors_list = reductors_list
+
+    def fit(self, X, y, **fit_params):
+        """
+        Fits all reductors from the list.
+        
+        Parameters
+        ----------
+        X: iterable
+            Features for selection.
+        y: iterable
+            Labels for selection.
+        
+        Returns
+        -------
+        self: object
+            Fitted reductor.
+        """
+        for reductor in self.reductors_list[:-1]:
+            X = reductor.fit_transform(X, y) 
+        self.reductors_list[-1].fit(X, y)
+        return self
+
+    def transform(self, X, y=None):
+        """
+        Gradually applies transformations of all reductors from the list. 
+        
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+        for reductor in self.reductors_list:
+            X = reductor.transform(X)
+        return X
 
 # ############################################################################
 # ########################### FEATURE SELECTION ##############################
