@@ -1,9 +1,8 @@
+import abc
 try:
     import cPickle as pickle
 except ModuleNotFoundError:
      import pickle
-
-# import icecream as ic
 
 class Picklable():
     """
@@ -16,7 +15,6 @@ class Picklable():
             name = self.__class__.__name__
         if concat:
             name = self.__class__.__name__ + '_' + name
-        # ic(name)
         with open(name, 'wb') as output:
             pickle.dump(self, output, -1)
         
@@ -25,6 +23,16 @@ class Picklable():
             name = self.__class__.__name__
         if concat:
             name = self.__class__.__name__ + '_' + name
-        # ic(name)
         with open(name, 'rb') as input:
             return pickle.load(input)
+
+class Visualizable(abc.ABC):
+    """
+    A simple abstract class requiring the implementation of a visualize function.
+    """
+    @abc.abstractmethod
+    def visualize(self):
+        """
+        This function visualize the outputs or state of the object.
+        """
+        raise NotImplementedError
