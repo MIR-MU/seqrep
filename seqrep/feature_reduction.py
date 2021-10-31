@@ -11,22 +11,24 @@ from sklearn.linear_model import LogisticRegression
 
 from .utils import Picklable, Visualizable
 
+
 class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
     """
     Class for implementation of feature reduction (selection or transformation)
     functionality.
     """
+
     def fit(self, X, y=None, **fit_params):
         """
         Fits the selected method.
-        
+
         Parameters
         ----------
         X: iterable
             Features for selection.
         y: iterable
             Labels for selection.
-        
+
         Returns
         -------
         self: object
@@ -38,24 +40,26 @@ class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
     def transform(self, X, y=None):
         """
         Extract or select features.
-        
+
         Parameters
         ----------
         X : iterable
             Data to transform.
-        
+
         Returns
         -------
         Xt : array-like of shape  (n_samples, n_transformed_features)
         """
         raise NotImplementedError
 
-    def visualize(self, X, y, downprojector = None, title: str=None, 
-                  figsize=(20, 10)) -> None:
+    def visualize(
+        self, X, y, downprojector=None, title: str = None, figsize=(20, 10)
+    ) -> None:
         if downprojector is not None:
             embedding = downprojector.fit_transform(X)
-            data = pd.DataFrame(embedding, columns=["X Value", "Y Value"], 
-                                index=X.index)
+            data = pd.DataFrame(
+                embedding, columns=["X Value", "Y Value"], index=X.index
+            )
         else:
             embedding = X.iloc[:, :2].copy()
             data = embedding
@@ -80,39 +84,40 @@ class SequentialFeatureReductor(FeatureReductor):
     reductors_list: list
         List of FeatureReductors.
     """
+
     def __init__(self, reductors_list: List[FeatureReductor]):
         self.reductors_list = reductors_list
 
     def fit(self, X, y, **fit_params):
         """
         Fits all reductors from the list.
-        
+
         Parameters
         ----------
         X: iterable
             Features for selection.
         y: iterable
             Labels for selection.
-        
+
         Returns
         -------
         self: object
             Fitted reductor.
         """
         for reductor in self.reductors_list[:-1]:
-            X = reductor.fit_transform(X, y) 
+            X = reductor.fit_transform(X, y)
         self.reductors_list[-1].fit(X, y)
         return self
 
     def transform(self, X, y=None):
         """
-        Gradually applies transformations of all reductors from the list. 
-        
+        Gradually applies transformations of all reductors from the list.
+
         Parameters
         ----------
         X : iterable
             Data to transform.
-        
+
         Returns
         -------
         Xt : array-like of shape  (n_samples, n_transformed_features)
@@ -121,9 +126,11 @@ class SequentialFeatureReductor(FeatureReductor):
             X = reductor.transform(X)
         return X
 
+
 # ############################################################################
 # ########################### FEATURE SELECTION ##############################
 # ############################################################################
+
 
 class FeatureSelector(FeatureReductor):
     """
@@ -141,14 +148,14 @@ class FeatureSelector(FeatureReductor):
     def fit(self, X, y=None, **fit_params):
         """
         Fits the selected method.
-        
+
         Parameters
         ----------
         X: iterable
             Features for selection.
         y: iterable
             Labels for selection.
-        
+
         Returns
         -------
         self: object
@@ -167,29 +174,29 @@ class FeatureSelector(FeatureReductor):
         X: array-like of shape  (n_samples, n_transformed_features)
             Data with selected features.
         """
-        selected_columns = [name for (_, name) in self.sorted_features][:self.number]
+        selected_columns = [name for (_, name) in self.sorted_features][: self.number]
         return X[selected_columns]
 
 
 class FeatureImportanceSelector(FeatureSelector):
     """
     Selects features based on feature importance.
-    
+
     Attributes
     ----------
     model:
-        Model determining the performance. 
+        Model determining the performance.
         It has to have `feature_importances_` attribute.
 
     sorted_features: list
-        List of pairs (value, feature_name) where the value specifies 
+        List of pairs (value, feature_name) where the value specifies
         the importance of the feature.
     """
 
     def __init__(self, model, number):
         self.model = model
         super(FeatureImportanceSelector, self).__init__(number)
-    
+
     def fit(self, X, y, **fit_params):
         """
         Train model and save the list of features with their importances.
@@ -212,29 +219,29 @@ class UnivariateFeatureSelector(FeatureSelector):
     """
     Selects features based on univariate statistical tests.
 
-    This selector is based on 
+    This selector is based on
     https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectKBest.html#sklearn.feature_selection.SelectKBest.
-    
+
     Attributes
     ----------
     score_func : callable, default=f_classif
         Function taking two arrays X and y, and returning a pair of arrays
         (scores, pvalues) or a single array with scores.
         Default is f_classif. The default function only
-        works with classification tasks.    
+        works with classification tasks.
 
     sorted_features: list
-        List of pairs (value, feature_name) where the value specifies 
+        List of pairs (value, feature_name) where the value specifies
         the score of the feature.
     """
 
     def __init__(self, number, score_func=f_classif):
         self.score_func = score_func
         super(UnivariateFeatureSelector, self).__init__(number)
-    
+
     def fit(self, X, y, **fit_params):
         """
-        Calculates the univariate scores and save them with the feature names 
+        Calculates the univariate scores and save them with the feature names
         in a list.
 
         Returns
@@ -255,9 +262,9 @@ class RFESelector(FeatureSelector):
     """
     Selects features based on Recursive Feature Elimination.
 
-    This selector is based on 
+    This selector is based on
     https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html
-    
+
     Attributes
     ----------
     estimator : ``Estimator`` instance
@@ -266,19 +273,21 @@ class RFESelector(FeatureSelector):
         (e.g. `coef_`, `feature_importances_`).
 
     sorted_features : list
-        List of pairs (value, feature_name) where the value specifies 
+        List of pairs (value, feature_name) where the value specifies
         the score of the feature.
     """
 
-    def __init__(self, number, estimator=LogisticRegression(solver='lbfgs', 
-                                                            multi_class='auto', 
-                                                            max_iter=280)):
+    def __init__(
+        self,
+        number,
+        estimator=LogisticRegression(solver="lbfgs", multi_class="auto", max_iter=280),
+    ):
         self.estimator = estimator
         super(RFESelector, self).__init__(number)
-    
+
     def fit(self, X, y, **fit_params):
         """
-        Calculates the feature importances and save them with the feature names 
+        Calculates the feature importances and save them with the feature names
         in a list.
 
         Returns
@@ -290,8 +299,8 @@ class RFESelector(FeatureSelector):
 
         selector = RFE(self.estimator, 1)
         selector.fit(X, y)
-        
-        values = 1 - (selector.ranking_/max(selector.ranking_))
+
+        values = 1 - (selector.ranking_ / max(selector.ranking_))
         features = dict(zip(values, X.columns))
         self.sorted_features = sorted(features.items(), reverse=True)
         return self
@@ -301,20 +310,20 @@ class VarianceSelector(FeatureSelector):
     """
     Selects features based on their variances.
 
-    This selector is based on 
+    This selector is based on
     https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html.
-    
+
     Attributes
     ----------
     sorted_features: list
-        List of pairs (value, feature_name) where the value specifies 
+        List of pairs (value, feature_name) where the value specifies
         the score of the feature.
     """
 
     def __init__(self, number, score_func=f_classif):
         self.score_func = score_func
         super(VarianceSelector, self).__init__(number)
-    
+
     def fit(self, X, y, **fit_params):
         """
         Calculates the variances and save them with the feature names in a list.

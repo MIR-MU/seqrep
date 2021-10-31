@@ -1,23 +1,33 @@
+from typing import Union, List
 import datetime
 import pandas as pd
 
+from .utils import Picklable
 from .labeling import Labeler
 from .splitting import Splitter
 from sklearn.pipeline import Pipeline
 from .feature_reduction import FeatureReductor
 from .evaluation import Evaluator
 
-class PipelineEvaluator():
+
+class PipelineEvaluator(Picklable):
     """
     PipelineEvaluator contains all modules and triggers them.
     """
 
-    def __init__(self, labeler: Labeler, splitter: Splitter, 
-                 pipeline: Pipeline = None, 
-                 feature_reductor: FeatureReductor = None, model = None, 
-                 evaluator: Evaluator = None,
-                 dropna: bool = True,
-                 verbose: bool = True):
+    def __init__(
+        self,
+        labeler: Labeler,
+        splitter: Splitter,
+        pipeline: Pipeline = None,
+        feature_reductor: FeatureReductor = None,
+        model=None,
+        evaluator: Evaluator = None,
+        dropna: bool = True,
+        downprojector=None,
+        visualize: Union[bool, List[str]] = False,
+        verbose: bool = True,
+    ):
         self.labeler = labeler
         self.splitter = splitter
         self.pipeline = pipeline
@@ -25,7 +35,22 @@ class PipelineEvaluator():
         self.model = model
         self.evaluator = evaluator
         self.dropna = dropna
+        self.downprojector = downprojector
+        self.visualize = visualize
         self.verbose = verbose
+
+        if isinstance(self.visualize, bool):
+            if self.visualize:
+                self.visualize = [
+                    "labeler",
+                    "splitter",
+                    "pipeline",
+                    "feature_reductor",
+                    "model",
+                    "evaluator",
+                ]
+            else:
+                self.visualize = []
 
     def _log(self, text) -> None:
         """
@@ -38,9 +63,8 @@ class PipelineEvaluator():
         """
 
         if self.verbose:
-            print(datetime.datetime.now().time().strftime('%H:%M:%S.%f')[:-3],
-                  text)
-            
+            print(datetime.datetime.now().time().strftime("%H:%M:%S.%f")[:-3], text)
+
     def _drop_na(self, X: pd.DataFrame, y: pd.Series) -> (pd.DataFrame, pd.Series):
         """
         Drop rows with NaN values from begining.
@@ -52,15 +76,17 @@ class PipelineEvaluator():
         """
 
         original_shape = X.shape
-        X.dropna(axis=1, thresh=int(X.shape[0]*0.9), inplace=True)
+        X.dropna(axis=1, thresh=int(X.shape[0] * 0.9), inplace=True)
         cut_number = X.isna().sum().max()
-        X = X.iloc[cut_number:, :] 
+        X = X.iloc[cut_number:, :]
         if X.isna().sum().sum() > 0:
             X = X.dropna(axis=0)
         y = y.loc[X.index]
-        self._log(f"\tOriginal shape:\t\t{original_shape}; \n\t\tshape after removing NaNs: {X.shape}.")
+        self._log(
+            f"\tOriginal shape:\t\t{original_shape}; \n\t\tshape after removing NaNs: {X.shape}."
+        )
         return X, y
-    
+
     def run(self, data):
         """
         Run each module on provided data.
@@ -91,12 +117,27 @@ class PipelineEvaluator():
         if self.dropna:
             X_train, y_train = self._drop_na(X=X_train, y=y_train)
             X_test, y_test = self._drop_na(X=X_test, y=y_test)
-            
+
+        if "pipeline" in self.visualize:
+            self.feature_reductor.visualize(
+                X=X_train,
+                y=y_train,
+                downprojector=self.downprojector,
+                title="Visualization of pipeline output",
+            )
+
         if self.feature_reductor is not None:
             self._log("Applying feature reduction")
-            self.feature_reductor.fit(X_train, y_train)            
+            self.feature_reductor.fit(X_train, y_train)
             X_train = self.feature_reductor.transform(X_train)
             X_test = self.feature_reductor.transform(X_test)
+            if "FeatureReductor" in self.visualize:
+                self.feature_reductor.visualize(
+                    X=X_train,
+                    y=y_train,
+                    downprojector=self.downprojector,
+                    title="Visualization of FeatureReductor output",
+                )
 
         if self.model is not None:
             self._log("Fitting model")

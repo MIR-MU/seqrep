@@ -1,10 +1,12 @@
 import abc
+
 try:
     import cPickle as pickle
 except ModuleNotFoundError:
-     import pickle
+    import pickle
 
-class Picklable():
+
+class Picklable:
     """
     Simple class for saving (and loading) functionality
     using pickle.
@@ -14,22 +16,24 @@ class Picklable():
         if name is None:
             name = self.__class__.__name__
         if concat:
-            name = self.__class__.__name__ + '_' + name
-        with open(name, 'wb') as output:
+            name = self.__class__.__name__ + "_" + name
+        with open(name, "wb") as output:
             pickle.dump(self, output, -1)
-        
+
     def load(self, name=None, concat=False):
         if name is None:
             name = self.__class__.__name__
         if concat:
-            name = self.__class__.__name__ + '_' + name
-        with open(name, 'rb') as input:
+            name = self.__class__.__name__ + "_" + name
+        with open(name, "rb") as input:
             return pickle.load(input)
+
 
 class Visualizable(abc.ABC):
     """
     A simple abstract class requiring the implementation of a visualize function.
     """
+
     @abc.abstractmethod
     def visualize(self):
         """

@@ -3,15 +3,32 @@ import pandas as pd
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
 from tqdm.auto import tqdm
+
 # Finance
 import pandas_ta as ta
-from ta import add_volume_ta, add_volatility_ta, add_trend_ta, add_momentum_ta, add_others_ta, add_all_ta_features
+from ta import (
+    add_volume_ta,
+    add_volatility_ta,
+    add_trend_ta,
+    add_momentum_ta,
+    add_others_ta,
+    add_all_ta_features,
+)
+
 # Health care
-from hrvanalysis.extract_features import get_time_domain_features, get_geometrical_features, get_frequency_domain_features, get_csi_cvi_features, get_poincare_plot_features, get_sampen
+from hrvanalysis.extract_features import (
+    get_time_domain_features,
+    get_geometrical_features,
+    get_frequency_domain_features,
+    get_csi_cvi_features,
+    get_poincare_plot_features,
+    get_sampen,
+)
 
 # import talib
 
 from .utils import Picklable
+
 
 class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
     """
@@ -25,12 +42,12 @@ class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
     def transform(self, X, y=None):
         """
         Extract or select features.
-        
+
         Parameters
         ----------
         X : iterable
             Data to transform.
-        
+
         Returns
         -------
         Xt : array-like of shape  (n_samples, n_transformed_features)
@@ -46,9 +63,12 @@ class FeatureSelectorExtractor(FeatureExtractor):
     def __init__(self, ordered_features: list, n: int = None):
         self.ordered_features = ordered_features
         self.n = n
-    
+
     def transform(self, X, y=None):
-        X.drop(columns=[col for col in X.columns if col not in self.ordered_features], inplace=True)
+        X.drop(
+            columns=[col for col in X.columns if col not in self.ordered_features],
+            inplace=True,
+        )
         return X[self.ordered_features]
 
 
@@ -77,7 +97,11 @@ class TimeFeaturesExtractor(FeatureExtractor):
     """
 
     def __init__(self, intervals: list = None):
-        self.intervals = ['minute', 'hour', 'weekday', 'day', 'weekofyear', 'month', 'year'] if intervals is None else intervals
+        self.intervals = (
+            ["minute", "hour", "weekday", "day", "weekofyear", "month", "year"]
+            if intervals is None
+            else intervals
+        )
 
     def transform(self, X, y=None):
         for interval in self.intervals:
@@ -88,6 +112,7 @@ class TimeFeaturesExtractor(FeatureExtractor):
 # ############################################################################
 # ##########################  FINANCE FEATURES  ##############################
 # ############################################################################
+
 
 class PandasTAExtractor(FeatureExtractor):
     """
@@ -100,14 +125,22 @@ class PandasTAExtractor(FeatureExtractor):
     """
 
     def __init__(self, indicators: list = None):
-        self.indicators = pd.DataFrame().ta.indicators(as_list=True) if indicators is None else indicators
+        self.indicators = (
+            pd.DataFrame().ta.indicators(as_list=True)
+            if indicators is None
+            else indicators
+        )
 
     def transform(self, X, y=None):
         cumulative_indicators = ["log_return", "percent_return", "trend_return"]
-        for indicator in tqdm(self.indicators, leave=False, 
-                              desc="Calculating Pandas TA indicators"):
-            X.ta(kind=indicator, append=True,
-                    cumulative = (indicator in cumulative_indicators))
+        for indicator in tqdm(
+            self.indicators, leave=False, desc="Calculating Pandas TA indicators"
+        ):
+            X.ta(
+                kind=indicator,
+                append=True,
+                cumulative=(indicator in cumulative_indicators),
+            )
         return X
 
 
@@ -136,15 +169,17 @@ class TAExtractor(FeatureExtractor):
         Prefix column names inserted.
     """
 
-    def __init__(self, all_features: bool = False,
-                 volume_features: bool = False,
-                 volatility_features: bool = False,
-                 trend_features: bool = False,
-                 momentum_features: bool = False,
-                 others_features: bool = False,
-        
-                 fillna: bool = False,
-                 colprefix: str = ""):
+    def __init__(
+        self,
+        all_features: bool = False,
+        volume_features: bool = False,
+        volatility_features: bool = False,
+        trend_features: bool = False,
+        momentum_features: bool = False,
+        others_features: bool = False,
+        fillna: bool = False,
+        colprefix: str = "",
+    ):
 
         self.all_features = all_features
         self.volume_features = volume_features
@@ -159,48 +194,77 @@ class TAExtractor(FeatureExtractor):
     def transform(self, X, y=None) -> pd.DataFrame:
         """
         Calculates features (technical indicators).
-        
+
         Parameters
         ----------
         X : iterable
             Data in OHLCV format.
-        
+
         Returns
         -------
         Xt : array-like of shape  (n_samples, n_transformed_features)
             Dataset with calculated features.
         """
         if self.all_features:
-            return add_all_ta_features(df=X, 
-                                       open="open", high="high", 
-                                       low="low", close="close", volume="volume", 
-                                       fillna=self.fillna, colprefix=self.colprefix)
+            return add_all_ta_features(
+                df=X,
+                open="open",
+                high="high",
+                low="low",
+                close="close",
+                volume="volume",
+                fillna=self.fillna,
+                colprefix=self.colprefix,
+            )
         if self.volume_features:
-            X = add_volume_ta(df=X,
-                              high="high", low="low", 
-                              close="close", volume="volume",
-                              fillna=self.fillna, colprefix=self.colprefix)
+            X = add_volume_ta(
+                df=X,
+                high="high",
+                low="low",
+                close="close",
+                volume="volume",
+                fillna=self.fillna,
+                colprefix=self.colprefix,
+            )
         if self.volatility_features:
-            X = add_volatility_ta(df=X, 
-                                  high="high", low="low", close="close", 
-                                  fillna=self.fillna, colprefix=self.colprefix)
+            X = add_volatility_ta(
+                df=X,
+                high="high",
+                low="low",
+                close="close",
+                fillna=self.fillna,
+                colprefix=self.colprefix,
+            )
         if self.trend_features:
-            X = add_trend_ta(df=X, 
-                             high="high", low="low", close="close", 
-                             fillna=self.fillna, colprefix=self.colprefix)
+            X = add_trend_ta(
+                df=X,
+                high="high",
+                low="low",
+                close="close",
+                fillna=self.fillna,
+                colprefix=self.colprefix,
+            )
         if self.momentum_features:
-            X = add_momentum_ta(df=X,
-                                high="high", low="low", 
-                                close="close", volume="volume",
-                                fillna=self.fillna, colprefix=self.colprefix)
+            X = add_momentum_ta(
+                df=X,
+                high="high",
+                low="low",
+                close="close",
+                volume="volume",
+                fillna=self.fillna,
+                colprefix=self.colprefix,
+            )
         if self.others_features:
-            X = add_others_ta(df=X, close="close", 
-                              fillna=self.fillna, colprefix=self.colprefix)
+            X = add_others_ta(
+                df=X, close="close", fillna=self.fillna, colprefix=self.colprefix
+            )
         return X
+
 
 # ############################################################################
 # ########################  HEALTH CARE FEATURES  ############################
 # ############################################################################
+
 
 class HRVExtractor(FeatureExtractor):
     """
@@ -216,15 +280,19 @@ class HRVExtractor(FeatureExtractor):
         List of funkcions from hrvanalysis.extract_features to be used.
     """
 
-    def __init__(self, window: int = 10,
-                 columns: list = None,
-                 methods: list = [get_time_domain_features, 
-                                  get_geometrical_features,
-                                  get_frequency_domain_features,
-                                  get_csi_cvi_features,
-                                  get_poincare_plot_features,
-                                  get_sampen]
-                 ):
+    def __init__(
+        self,
+        window: int = 10,
+        columns: list = None,
+        methods: list = [
+            get_time_domain_features,
+            get_geometrical_features,
+            get_frequency_domain_features,
+            get_csi_cvi_features,
+            get_poincare_plot_features,
+            get_sampen,
+        ],
+    ):
         self.window = window
         self.columns = columns
         self.methods = methods
@@ -233,17 +301,23 @@ class HRVExtractor(FeatureExtractor):
         if self.columns is None:
             self.columns = X.columns[-1]
         statistics = []
-        for i in trange(self.window, X.shape[0], 1, leave=False, desc="Calculating features"):
-            start = X.index[i - self.window] 
+        for i in trange(
+            self.window, X.shape[0], 1, leave=False, desc="Calculating features"
+        ):
+            start = X.index[i - self.window]
             stop = X.index[i]
             columns_results = {}
             for column in tqdm(self.columns, leave=False, desc="Calculating columns"):
                 methods_results = {}
-                for method in tqdm(self.methods, leave=False, desc="Calculating methods"):
+                for method in tqdm(
+                    self.methods, leave=False, desc="Calculating methods"
+                ):
                     methods_results.update(method(X.loc[start:stop, column]))
-                methods_results = {k + f"-{column}": v for k, v in methods_results.items()}
+                methods_results = {
+                    k + f"-{column}": v for k, v in methods_results.items()
+                }
                 columns_results.update(methods_results)
             statistics.append(columns_results)
-        X = X.join(pd.DataFrame(statistics, index=X.index[self.window:]))
+        X = X.join(pd.DataFrame(statistics, index=X.index[self.window :]))
         X.replace([np.inf, -np.inf], np.nan, inplace=True)
         return X

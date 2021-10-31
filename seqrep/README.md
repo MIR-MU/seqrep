@@ -42,8 +42,10 @@ This is a list of classes of all modules with a brief description of their funct
 	> _Wrapper for arbitrary scaler e.g. from scikit-learn._
 
 ## Feature_reduction
-- **FeatureReductor**(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
+- **FeatureReductor**(BaseEstimator, TransformerMixin, Picklable, Visualizable):
 	> _Class for implementation of feature reduction (selection or transformation._
+- **SequentialFeatureReductor**(FeatureReductor):
+	> _This reductor sequentialy triggers the entered reductors._
 - **FeatureSelector**(FeatureReductor):
 	> _Metalass for implementation of feature selection functionality._
 - **FeatureImportanceSelector**(FeatureSelector):
@@ -56,7 +58,7 @@ This is a list of classes of all modules with a brief description of their funct
 	> _Selects features based on their variances._
 
 ## Evaluation
-- **Evaluator**(abc.ABC):
+- **Evaluator**(Visualizable):
 	> _Class for evaluation of results._
 - **UniversalEvaluator**(Evaluator):
 	> _Evaluator which calculates provided metrics._
@@ -66,5 +68,5 @@ This is a list of classes of all modules with a brief description of their funct
 	> _Evaluator for regression results._
 
 ## Pipeline_evaluation
-- **PipelineEvaluator**():
+- **PipelineEvaluator**(Picklable):
 	> _PipelineEvaluator contains all modules and triggers them._
