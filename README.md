@@ -4,6 +4,7 @@
 [![Check Markdown links](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/SimpleClassificationExample.ipynb)
 [![CodeFactor](https://www.codefactor.io/repository/github/mir-mu/seqrep/badge/main)](https://www.codefactor.io/repository/github/mir-mu/seqrep/overview/main)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 *Scientific framework for representation in sequential data*
 
