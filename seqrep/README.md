@@ -46,6 +46,8 @@ This is a list of classes of all modules with a brief description of their funct
 	> _Class for implementation of feature reduction (selection or transformation._
 - **SequentialFeatureReductor**(FeatureReductor):
 	> _This reductor sequentialy triggers the entered reductors._
+- **PCAReductor**(FeatureReductor):
+	> _This reductor is based on Principal component analysis (PCA)._
 - **FeatureSelector**(FeatureReductor):
 	> _Metalass for implementation of feature selection functionality._
 - **FeatureImportanceSelector**(FeatureSelector):
@@ -64,7 +66,7 @@ This is a list of classes of all modules with a brief description of their funct
 	> _Evaluator which calculates provided metrics._
 - **ClassificationEvaluator**(Evaluator):
 	> _Evaluator for classification results._
-- **RegressionEvaluator**(Evaluator): 
+- **RegressionEvaluator**(Evaluator):
 	> _Evaluator for regression results._
 
 ## Pipeline_evaluation

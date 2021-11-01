@@ -8,6 +8,7 @@ from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.feature_selection import RFE, VarianceThreshold
 from sklearn.linear_model import LogisticRegression
+from sklearn.decomposition import PCA
 
 from .utils import Picklable, Visualizable
 
@@ -125,6 +126,63 @@ class SequentialFeatureReductor(FeatureReductor):
         for reductor in self.reductors_list:
             X = reductor.transform(X)
         return X
+
+
+class PCAReductor(FeatureReductor):
+    """
+    This reductor is based on Principal component analysis (PCA):
+    https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+
+    Attributes
+    ----------
+    n_components : int, float, default=None
+        Number of components to keep.
+
+    svd_solver : {'auto', 'full', 'arpack', 'randomized'}, default='auto'
+        See the sklearn documentation for details.
+    """
+
+    def __init__(
+        self, n_components: Optional[Union[int, float]] = None, svd_solver="auto"
+    ):
+        self.n_components = n_components
+        self.svd_solver = svd_solver
+
+    def fit(self, X, y, **fit_params):
+        """
+        Fit the PCA object with X.
+
+        Parameters
+        ----------
+        X: iterable
+            Features for selection.
+        y: iterable
+            Labels for selection.
+
+        Returns
+        -------
+        self: object
+            Fitted reductor.
+        """
+        self.pca = PCA(n_components=self.n_components, svd_solver=self.svd_solver).fit(
+            X
+        )
+        return self
+
+    def transform(self, X, y=None):
+        """
+        Apply the dimensionality reduction on X.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+        return self.pca.transform(X)
 
 
 # ############################################################################
