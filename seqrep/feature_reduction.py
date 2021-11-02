@@ -164,9 +164,10 @@ class PCAReductor(FeatureReductor):
         self: object
             Fitted reductor.
         """
-        self.pca = PCA(n_components=self.n_components, svd_solver=self.svd_solver).fit(
-            X
-        )
+        self.pca = PCA(
+            n_components=self.n_components,
+            svd_solver=self.svd_solver,
+        ).fit(X)
         return self
 
     def transform(self, X, y=None):
@@ -182,7 +183,7 @@ class PCAReductor(FeatureReductor):
         -------
         Xt : array-like of shape  (n_samples, n_transformed_features)
         """
-        return self.pca.transform(X)
+        return pd.DataFrame(self.pca.transform(X), index=X.index)
 
 
 # ############################################################################
