@@ -1,4 +1,5 @@
 import abc
+from typing import List
 import numpy as np
 import pandas as pd
 
@@ -46,6 +47,39 @@ class Evaluator(Visualizable):
     @abc.abstractmethod
     def visualize(self, y_true, y_pred):
         raise NotImplementedError
+
+
+class SequentialEvaluator(Evaluator):
+    """
+    This evaluator sequentialy triggers the entered evaluators.
+
+    Attributes
+    ----------
+    evaluators_list: list
+        List of Evaluators.
+    """
+
+    def __init__(
+        self, evaluators_list: List[Evaluator], visualize_only_last: bool = False
+    ):
+        self.evaluators_list = evaluators_list
+        self.visualize_only_last = visualize_only_last
+
+    def evaluate(self, y_true, y_pred):
+        """
+        Evaluates the true values and predictions.
+        """
+        results = []
+        for evaluator in self.evaluators_list:
+            results += evaluator.evaluate(y_true, y_pred)
+        return results
+
+    def visualize(self, y_true, y_pred):
+        if self.visualize_only_last:
+            return self.evaluators_list[-1].visualize(y_true, y_pred)
+
+        for evaluator in self.evaluators_list:
+            evaluator.visualize(y_true, y_pred)
 
 
 class UniversalEvaluator(Evaluator):

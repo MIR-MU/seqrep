@@ -62,6 +62,8 @@ This is a list of classes of all modules with a brief description of their funct
 ## Evaluation
 - **Evaluator**(Visualizable):
 	> _Class for evaluation of results._
+- **SequentialEvaluator**(Evaluator):
+	> _This evaluator sequentialy triggers the entered evaluators._
 - **UniversalEvaluator**(Evaluator):
 	> _Evaluator which calculates provided metrics._
 - **ClassificationEvaluator**(Evaluator):
