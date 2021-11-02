@@ -1,5 +1,7 @@
 import abc
 import pandas as pd
+from numpy_ext import rolling_apply
+import numpy as np
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
 from tqdm.auto import tqdm
@@ -278,6 +280,8 @@ class HRVExtractor(FeatureExtractor):
         Columns from which to be calculated new features.
     methods : list
         List of funkcions from hrvanalysis.extract_features to be used.
+    n_jobs : int, optional
+        Parallel tasks count for joblib. If 1, joblib won’t be used. Default is 1.
     """
 
     def __init__(
@@ -292,32 +296,26 @@ class HRVExtractor(FeatureExtractor):
             get_poincare_plot_features,
             get_sampen,
         ],
+        n_jobs: int = 1,
     ):
         self.window = window
         self.columns = columns
         self.methods = methods
+        self.n_jobs = n_jobs
 
     def transform(self, X, y=None):
         if self.columns is None:
-            self.columns = X.columns[-1]
-        statistics = []
-        for i in trange(
-            self.window, X.shape[0], 1, leave=False, desc="Calculating features"
-        ):
-            start = X.index[i - self.window]
-            stop = X.index[i]
-            columns_results = {}
-            for column in tqdm(self.columns, leave=False, desc="Calculating columns"):
-                methods_results = {}
-                for method in tqdm(
-                    self.methods, leave=False, desc="Calculating methods"
-                ):
-                    methods_results.update(method(X.loc[start:stop, column]))
-                methods_results = {
-                    k + f"-{column}": v for k, v in methods_results.items()
-                }
-                columns_results.update(methods_results)
-            statistics.append(columns_results)
-        X = X.join(pd.DataFrame(statistics, index=X.index[self.window :]))
+            self.columns = [X.columns[-1]]
+
+        for column in tqdm(self.columns, leave=False, desc="Calculating columns"):
+            for method in tqdm(self.methods, leave=False, desc="Calculating methods"):
+                features = pd.DataFrame.from_records(
+                    rolling_apply(method, self.window, X[column], n_jobs=self.n_jobs)[
+                        self.window - 1 :
+                    ],
+                    index=X.index[self.window - 1 :],
+                )
+                features = features.add_suffix(f"-{column}")
+                X = X.join(features)
         X.replace([np.inf, -np.inf], np.nan, inplace=True)
         return X
