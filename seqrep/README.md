@@ -74,3 +74,9 @@ This is a list of classes of all modules with a brief description of their funct
 ## Pipeline_evaluation
 - **PipelineEvaluator**(Picklable):
 	> _PipelineEvaluator contains all modules and triggers them._
+
+## Utils
+- **Picklable:
+	> _Simple class for saving **(and loading) functionality using pickle._
+- **Visualizable**(abc.ABC):
+	> _A simple abstract class requiring the implementation of a visualize function._

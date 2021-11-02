@@ -8,8 +8,7 @@ except ModuleNotFoundError:
 
 class Picklable:
     """
-    Simple class for saving (and loading) functionality
-    using pickle.
+    Simple class for saving (and loading) functionality using pickle.
     """
 
     def save(self, name=None, concat=False):
