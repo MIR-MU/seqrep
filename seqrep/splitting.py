@@ -1,12 +1,15 @@
 import abc
+from typing import List
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
+import plotly.graph_objects as go
 
-from .utils import Picklable
+from .utils import Picklable, Visualizable
 
 
-class Splitter(abc.ABC, TransformerMixin, BaseEstimator, Picklable):
+class Splitter(TransformerMixin, BaseEstimator, Picklable, Visualizable):
     """
     Abstract class for splitting dataset.
     """
@@ -16,7 +19,37 @@ class Splitter(abc.ABC, TransformerMixin, BaseEstimator, Picklable):
 
     @abc.abstractmethod
     def transform(self, X, y=None):
+        """
+        Split X and y.
+        """
         raise NotImplementedError
+
+    def visualize(self, X: List, y=None):
+        """
+        Visualize train and test subsets.
+        """
+        X_train, X_test = X[:2]
+        fig = go.Figure()
+        fig.update_layout(title="Visualization of train-test split")
+        fig.update_xaxes(title_text="time")
+        fig.update_yaxes(title_text=X_train.columns[0])
+        fig.add_trace(
+            go.Scatter(
+                x=X_train.index,
+                y=X_train.iloc[:, 0],
+                name="train",
+                mode="lines",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=X_test.index,
+                y=X_test.iloc[:, 0],
+                name="test",
+                mode="lines",
+            )
+        )
+        fig.show()
 
 
 class TrainTestSplitter(Splitter):
@@ -49,6 +82,3 @@ class TrainTestSplitter(Splitter):
             stratify=self.stratify,
         )
         return X_train, X_test, y_train, y_test
-
-
-# class TrainValTestSplitter(Splitter): # TODO: implement
