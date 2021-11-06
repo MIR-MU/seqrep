@@ -3,10 +3,12 @@ import pandas as pd
 
 from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
-from .utils import Picklable
+import plotly.graph_objects as go
+
+from .utils import Picklable, Visualizable
 
 
-class Labeler(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
+class Labeler(BaseEstimator, TransformerMixin, Picklable, Visualizable):
     """
     Create labels to dataset.
     """
@@ -17,6 +19,21 @@ class Labeler(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
     @abc.abstractmethod
     def transform(self, X, y=None):
         raise NotImplementedError
+
+    def visualize(self, labels, X=None, mode="lines"):
+        fig = go.Figure()
+        fig.update_layout(title="Visualization of labels")
+        fig.update_yaxes(title_text="labels")
+        for i in range(labels.shape[1]):
+            fig.add_trace(
+                go.Scatter(
+                    x=labels.index,
+                    y=labels.iloc[:, i],
+                    name=labels.columns[i],
+                    mode=mode,
+                )
+            )
+        fig.show()
 
 
 class NextColorLabeler(Labeler):
