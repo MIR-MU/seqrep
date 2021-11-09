@@ -5,7 +5,7 @@ from sklearn.pipeline import TransformerMixin
 from sklearn.base import BaseEstimator
 import plotly.graph_objects as go
 
-from .utils import Picklable, Visualizable
+from .utils import Picklable, Visualizable, visualize_labels
 
 
 class Labeler(BaseEstimator, TransformerMixin, Picklable, Visualizable):
@@ -20,20 +20,11 @@ class Labeler(BaseEstimator, TransformerMixin, Picklable, Visualizable):
     def transform(self, X, y=None):
         raise NotImplementedError
 
-    def visualize(self, labels, X=None, mode="lines"):
-        fig = go.Figure()
-        fig.update_layout(title="Visualization of labels")
-        fig.update_yaxes(title_text="labels")
-        for i in range(labels.shape[1]):
-            fig.add_trace(
-                go.Scatter(
-                    x=labels.index,
-                    y=labels.iloc[:, i],
-                    name=labels.columns[i],
-                    mode=mode,
-                )
-            )
-        fig.show()
+    def visualize(self, labels, X=None, mode: str = "lines") -> None:
+        """
+        Plot labels.
+        """
+        return visualize_labels(labels=labels, mode=mode)
 
 
 class NextColorLabeler(Labeler):
