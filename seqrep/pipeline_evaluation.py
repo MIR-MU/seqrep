@@ -2,7 +2,7 @@ from typing import Union, List
 import datetime
 import pandas as pd
 
-from .utils import Picklable
+from .utils import Picklable, visualize_labels
 from .labeling import Labeler
 from .splitting import Splitter
 from sklearn.pipeline import Pipeline
@@ -104,9 +104,13 @@ class PipelineEvaluator(Picklable):
 
         self._log("Labeling data")
         labels = self.labeler.transform(data)
+        if "labeler" in self.visualize:
+            self.labeler.visualize(labels=labels)
 
         self._log("Splitting data")
         X_train, X_test, y_train, y_test = self.splitter.transform(X=data, y=labels)
+        if "splitter" in self.visualize:
+            self.splitter.visualize(X=[X_train, X_test])
 
         if self.pipeline is not None:
             self._log("Fitting pipeline")
@@ -131,7 +135,7 @@ class PipelineEvaluator(Picklable):
             self.feature_reductor.fit(X_train, y_train)
             X_train = self.feature_reductor.transform(X_train)
             X_test = self.feature_reductor.transform(X_test)
-            if "FeatureReductor" in self.visualize:
+            if "feature_reductor" in self.visualize:
                 self.feature_reductor.visualize(
                     X=X_train,
                     y=y_train,
@@ -142,6 +146,12 @@ class PipelineEvaluator(Picklable):
         if self.model is not None:
             self._log("Fitting model")
             self.model.fit(X_train, y_train)
+            if "model" in self.visualize:
+                y_pred = self.model.predict(X_train)
+                visualize_labels(
+                    labels=pd.DataFrame({"y_true": y_train, "y_pred": y_pred}),
+                    title="Visualize TRAIN predictions and true values",
+                )
 
             self._log("Predicting")
             y_pred = self.model.predict(X_test)
@@ -149,4 +159,6 @@ class PipelineEvaluator(Picklable):
             if self.evaluator is not None:
                 self._log("Evaluating predictions")
                 self.evaluator.evaluate(y_true=y_test, y_pred=y_pred)
+                if "evaluator" in self.visualize:
+                    self.evaluator.visualize(y_true=y_test, y_pred=y_pred)
                 return y_pred
