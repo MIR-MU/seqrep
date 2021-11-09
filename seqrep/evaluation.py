@@ -8,7 +8,7 @@ from sklearn.metrics import classification_report, precision_score, recall_score
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-from .utils import Visualizable
+from .utils import Visualizable, visualize_labels
 
 
 class Evaluator(Visualizable):
@@ -44,9 +44,14 @@ class Evaluator(Visualizable):
         """
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def visualize(self, y_true, y_pred):
-        raise NotImplementedError
+    def visualize(self, y_true, y_pred) -> None:
+        """
+        Plot predictions and true values.
+        """
+        labels = pd.DataFrame({"y_true": y_true, "y_pred": y_pred})
+        return visualize_labels(
+            labels=labels, title="Visualize TEST predictions and true values"
+        )
 
 
 class SequentialEvaluator(Evaluator):
@@ -112,9 +117,6 @@ class UniversalEvaluator(Evaluator):
                 print(f"{metric.__name__}:\n\t{res}")
         return results
 
-    def visualize(self, y_true, y_pred):
-        pass  # TODO
-
 
 class ClassificationEvaluator(Evaluator):
     """
@@ -151,9 +153,6 @@ class ClassificationEvaluator(Evaluator):
         ]
         return results
 
-    def visualize(self, y_true, y_pred):
-        pass  # TODO
-
 
 class RegressionEvaluator(Evaluator):
     """
@@ -178,6 +177,3 @@ R2:   {r2:>6.4f}
 """
         )
         return results
-
-    def visualize(self, y_true, y_pred):
-        pass  # TODO
