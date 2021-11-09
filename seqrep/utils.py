@@ -1,6 +1,8 @@
 import abc
 import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
 try:
     import cPickle as pickle
@@ -63,4 +65,24 @@ def visualize_labels(
                 mode=mode,
             )
         )
+    fig.show()
+
+
+def visualize_data(
+    X, y, downprojector=None, title: str = "Visualization of data"
+) -> None:
+    """
+    Plot data in 2D.
+    """
+    if downprojector is not None:
+        embedding = downprojector.fit_transform(X)
+        data = pd.DataFrame(embedding, columns=["X Value", "Y Value"], index=X.index)
+    else:
+        embedding = X.iloc[:, :2].copy()
+        data = embedding
+        data.columns = ["X Value", "Y Value"]
+    data["Category"] = y
+    fig = px.scatter(
+        data, x="X Value", y="Y Value", color=data["Category"], hover_name=data.index
+    )
     fig.show()
