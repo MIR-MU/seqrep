@@ -2,7 +2,7 @@ from typing import Union, List
 import datetime
 import pandas as pd
 
-from .utils import Picklable, visualize_labels
+from .utils import Picklable, visualize_labels, visualize_data
 from .labeling import Labeler
 from .splitting import Splitter
 from sklearn.pipeline import Pipeline
@@ -123,7 +123,7 @@ class PipelineEvaluator(Picklable):
             X_test, y_test = self._drop_na(X=X_test, y=y_test)
 
         if "pipeline" in self.visualize:
-            self.feature_reductor.visualize(
+            visualize_data(
                 X=X_train,
                 y=y_train,
                 downprojector=self.downprojector,

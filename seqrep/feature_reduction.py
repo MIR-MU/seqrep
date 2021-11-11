@@ -10,7 +10,7 @@ from sklearn.feature_selection import RFE, VarianceThreshold
 from sklearn.linear_model import LogisticRegression
 from sklearn.decomposition import PCA
 
-from .utils import Picklable, Visualizable
+from .utils import Picklable, Visualizable, visualize_data
 
 
 class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
@@ -54,26 +54,13 @@ class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
         raise NotImplementedError
 
     def visualize(
-        self, X, y, downprojector=None, title: str = None, figsize=(20, 10)
+        self,
+        X,
+        y,
+        downprojector=None,
+        title: str = "Visualization of FeatureReductor output",
     ) -> None:
-        if downprojector is not None:
-            embedding = downprojector.fit_transform(X)
-            data = pd.DataFrame(
-                embedding, columns=["X Value", "Y Value"], index=X.index
-            )
-        else:
-            embedding = X.iloc[:, :2].copy()
-            data = embedding
-            data.columns = ["X Value", "Y Value"]
-        data["Category"] = y
-        groups = data.groupby("Category")
-
-        plt.figure(figsize=figsize)
-        for name, group in groups:
-            plt.scatter(group["X Value"], group["Y Value"], label=name)
-        plt.title(title)
-        plt.legend()
-        plt.show()
+        return visualize_data(X=X, y=y, downprojector=downprojector, title=title)
 
 
 class SequentialFeatureReductor(FeatureReductor):
