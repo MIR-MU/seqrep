@@ -1,8 +1,9 @@
 import abc
+
+import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import matplotlib.pyplot as plt
 
 try:
     import cPickle as pickle

@@ -1,14 +1,13 @@
 import abc
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 
-import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.pipeline import TransformerMixin
+import pandas as pd
 from sklearn.base import BaseEstimator
-from sklearn.feature_selection import SelectKBest, f_classif
-from sklearn.feature_selection import RFE, VarianceThreshold
-from sklearn.linear_model import LogisticRegression
 from sklearn.decomposition import PCA
+from sklearn.feature_selection import RFE, SelectKBest, VarianceThreshold, f_classif
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import TransformerMixin
 
 from .utils import Picklable, Visualizable, visualize_data
 

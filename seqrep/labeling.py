@@ -1,9 +1,9 @@
 import abc
-import pandas as pd
 
-from sklearn.pipeline import TransformerMixin
-from sklearn.base import BaseEstimator
+import pandas as pd
 import plotly.graph_objects as go
+from sklearn.base import BaseEstimator
+from sklearn.pipeline import TransformerMixin
 
 from .utils import Picklable, Visualizable, visualize_labels
 

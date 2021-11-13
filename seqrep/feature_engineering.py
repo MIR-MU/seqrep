@@ -1,35 +1,36 @@
 import abc
-import pandas as pd
-from numpy_ext import rolling_apply
+
 import numpy as np
-from sklearn.pipeline import TransformerMixin
-from sklearn.base import BaseEstimator
-from tqdm.auto import tqdm
+import pandas as pd
 
 # Finance
 import pandas_ta as ta
-from ta import (
-    add_volume_ta,
-    add_volatility_ta,
-    add_trend_ta,
-    add_momentum_ta,
-    add_others_ta,
-    add_all_ta_features,
-)
 
 # Health care
 from hrvanalysis.extract_features import (
-    get_time_domain_features,
-    get_geometrical_features,
-    get_frequency_domain_features,
     get_csi_cvi_features,
+    get_frequency_domain_features,
+    get_geometrical_features,
     get_poincare_plot_features,
     get_sampen,
+    get_time_domain_features,
 )
-
-# import talib
+from numpy_ext import rolling_apply
+from sklearn.base import BaseEstimator
+from sklearn.pipeline import TransformerMixin
+from ta import (
+    add_all_ta_features,
+    add_momentum_ta,
+    add_others_ta,
+    add_trend_ta,
+    add_volatility_ta,
+    add_volume_ta,
+)
+from tqdm.auto import tqdm
 
 from .utils import Picklable
+
+# import talib
 
 
 class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):

@@ -1,13 +1,14 @@
-from typing import Union, List
 import datetime
-import pandas as pd
+from typing import List, Tuple, Union
 
-from .utils import Picklable, visualize_labels, visualize_data
+import pandas as pd
+from sklearn.pipeline import Pipeline
+
+from .evaluation import Evaluator
+from .feature_reduction import FeatureReductor
 from .labeling import Labeler
 from .splitting import Splitter
-from sklearn.pipeline import Pipeline
-from .feature_reduction import FeatureReductor
-from .evaluation import Evaluator
+from .utils import Picklable, visualize_data, visualize_labels
 
 
 class PipelineEvaluator(Picklable):
@@ -65,7 +66,8 @@ class PipelineEvaluator(Picklable):
         if self.verbose:
             print(datetime.datetime.now().time().strftime("%H:%M:%S.%f")[:-3], text)
 
-    def _drop_na(self, X: pd.DataFrame, y: pd.Series) -> (pd.DataFrame, pd.Series):
+    # def _drop_na(self, X: pd.DataFrame, y: pd.Series) -> (pd.DataFrame, pd.Series):
+    def _drop_na(self, X: pd.DataFrame, y: pd.Series) -> Tuple[pd.DataFrame, pd.Series]:
         """
         Drop rows with NaN values from begining.
 

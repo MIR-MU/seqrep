@@ -2,9 +2,9 @@ import abc
 from typing import List, Tuple
 
 import pandas as pd
-from sklearn.pipeline import TransformerMixin
-from sklearn.base import BaseEstimator
 import sklearn.preprocessing
+from sklearn.base import BaseEstimator
+from sklearn.pipeline import TransformerMixin
 
 from .utils import Picklable
 

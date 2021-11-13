@@ -1,10 +1,11 @@
 import abc
 from typing import List
+
 import pandas as pd
+import plotly.graph_objects as go
+from sklearn.base import BaseEstimator
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import TransformerMixin
-from sklearn.base import BaseEstimator
-import plotly.graph_objects as go
 
 from .utils import Picklable, Visualizable
 
