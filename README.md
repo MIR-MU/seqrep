@@ -1,6 +1,6 @@
 # SeqRep
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](LICENSE)
 [![Check Markdown links](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/SimpleClassificationExample.ipynb)
 [![CodeFactor](https://www.codefactor.io/repository/github/mir-mu/seqrep/badge/main)](https://www.codefactor.io/repository/github/mir-mu/seqrep/overview/main)
@@ -19,6 +19,8 @@ This package aims to simplify the workflow of **evaluation of machine learning m
 - feature reduction (i.e. selection or transformation),
 - running pipeline,
 - evaluation of results.
+
+It also allows you to **visualize** each step.
 
 The framework is designed for easy customization and extension of its functionality.
 
@@ -66,11 +68,12 @@ pipe_eval = PipelineEvaluator(labeler = NextColorLabeler(),
 # 3. step
 result = pipe_eval.run(data=data)
 ```
-See the [examples folder](examples) for more details.
+See the [examples folder](examples) for more details. Or [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/SimpleClassificationExample.ipynb).
 
-## License
+## License 
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](LICENSE)
 
-[MIT](LICENSE)
+This package is licensed under the [MIT license](LICENSE), so it is open source. Feel free to use it!
 
 ## Acknowledgement
 
