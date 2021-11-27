@@ -5,7 +5,8 @@ This is a list of classes of all modules with a brief description of their funct
 - **Labeler**(BaseEstimator, TransformerMixin, Picklable, Visualizable):
 	> _Create labels to dataset._
 - **NextColorLabeler**(Labeler):
-	> _NextColorLabeler applies binary labeling (0 or 1) based on the next candl._
+	> _NextColorLabeler applies binary labeling (0 or 1) based on the next candle
+    color if it is bullish or bearish._
 - **NextSentimentLabeler**(Labeler):
 	> _NextSentimentLabeler applies binary labeling (0 or 1) based on the direction of higher move during the next candle._
 - **ClassificationLabeler**(Labeler):
@@ -31,7 +32,8 @@ This is a list of classes of all modules with a brief description of their funct
 - **PandasTAExtractor**(FeatureExtractor):
 	> _Add Pandas TA features._
 - **TAExtractor**(FeatureExtractor):
-	> _Feature extractor based on technical analysis indicators from TA library._
+	> _Feature extractor based on technical analysis indicators from TA library:
+    https://github.com/bukosabino/ta._
 - **HRVExtractor**(FeatureExtractor):
 	> _Add Heart Rate Variability analysis features._
 
@@ -39,17 +41,20 @@ This is a list of classes of all modules with a brief description of their funct
 - **Scaler**(abc.ABC, TransformerMixin, BaseEstimator, Picklable):
 	> _Abstract class for scaling._
 - **StandardScaler**(Scaler):
-	> _Standard scaling taken from scikit-learn._
+	> _Standard scaling taken from scikit-learn:
+    https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html._
 - **UniversalScaler**(Scaler):
 	> _Wrapper for arbitrary scaler e.g. from scikit-learn._
 
 ## Feature_reduction
 - **FeatureReductor**(BaseEstimator, TransformerMixin, Picklable, Visualizable):
-	> _Class for implementation of feature reduction (selection or transformation._
+	> _Class for implementation of feature reduction (selection or transformation)
+    functionality._
 - **SequentialFeatureReductor**(FeatureReductor):
 	> _This reductor sequentialy triggers the entered reductors._
 - **PCAReductor**(FeatureReductor):
-	> _This reductor is based on Principal component analysis (PCA)._
+	> _This reductor is based on Principal component analysis (PCA):
+    https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html._
 - **FeatureSelector**(FeatureReductor):
 	> _Metalass for implementation of feature selection functionality._
 - **FeatureImportanceSelector**(FeatureSelector):
