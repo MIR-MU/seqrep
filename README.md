@@ -1,7 +1,7 @@
 # SeqRep
 [![Open Source? Yes!](https://badgen.net/badge/Open%20Source%20%3F/Yes%21/blue?icon=github)](https://github.com/Naereen/badges/)
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](LICENSE)
-[![Check Markdown links](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/action.yml)
+[![Check Markdown links](https://github.com/MIR-MU/seqrep/actions/workflows/markdown-link-check.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/markdown-link-check.yml)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/SimpleClassificationExample.ipynb)
 [![CodeFactor](https://www.codefactor.io/repository/github/mir-mu/seqrep/badge/main)](https://www.codefactor.io/repository/github/mir-mu/seqrep/overview/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
