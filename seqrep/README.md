@@ -2,17 +2,19 @@
 This is a list of classes of all modules with a brief description of their functionality.
 
 ## Labeling
-- **Labeler**(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
+- **Labeler**(BaseEstimator, TransformerMixin, Picklable, Visualizable):
 	> _Create labels to dataset._
 - **NextColorLabeler**(Labeler):
 	> _NextColorLabeler applies binary labeling (0 or 1) based on the next candl._
-- **RegressionLabeler**(Labeler):
-	> _Find the maximum and minimum value change during selected future steps._
+- **NextSentimentLabeler**(Labeler):
+	> _NextSentimentLabeler applies binary labeling (0 or 1) based on the direction of higher move during the next candle._
 - **ClassificationLabeler**(Labeler):
 	> _ClassificationLabeler applies ternary labeling according to future values._
+- **RegressionLabeler**(Labeler):
+	> _Find the maximum and minimum value change during selected future steps._
 
 ## Splitting
-- **Splitter**(abc.ABC, TransformerMixin, BaseEstimator, Picklable):
+- **Splitter**(TransformerMixin, BaseEstimator, Picklable, Visualizable):
 	> _Abstract class for splitting dataset._
 - **TrainTestSplitter**(Splitter):
 	> _Splitting to train and test taken from scikit-learn.model_selection._
@@ -76,7 +78,7 @@ This is a list of classes of all modules with a brief description of their funct
 	> _PipelineEvaluator contains all modules and triggers them._
 
 ## Utils
-- **Picklable:
-	> _Simple class for saving **(and loading) functionality using pickle._
+- **Picklable**:
+	> _Simple class for saving (and loading) functionality using pickle._
 - **Visualizable**(abc.ABC):
 	> _A simple abstract class requiring the implementation of a visualize function._
