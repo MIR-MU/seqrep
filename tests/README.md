@@ -1,4 +1,5 @@
 # Tests
+[![Python package](https://github.com/MIR-MU/seqrep/actions/workflows/python-package.yml/badge.svg)](https://github.com/MIR-MU/seqrep/actions/workflows/python-package.yml)
 
 For testing, you need to install `pytest` and `pytest-cov` packages.
 
