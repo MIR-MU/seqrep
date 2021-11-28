@@ -1,19 +1,18 @@
-import abc
-from typing import List
+"""
+Evaluation module
 
+This module implements the evaluation process. It calculates the results from actual values and predictions. It also allows visualization.
+"""
+
+import abc
+from typing import List, Dict
 import numpy as np
 import pandas as pd
-from sklearn.metrics import (
-    accuracy_score,
-    classification_report,
-    confusion_matrix,
-    mean_absolute_error,
-    mean_squared_error,
-    precision_score,
-    r2_score,
-    recall_score,
-    roc_auc_score,
-)
+
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import classification_report, precision_score, recall_score
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 from .utils import Visualizable, visualize_labels
 
@@ -32,7 +31,7 @@ class Evaluator(Visualizable):
         return (y_pred > self.threshold).argmax(1)
 
     @abc.abstractmethod
-    def evaluate(self, y_true, y_pred):
+    def evaluate(self, y_true, y_pred) -> Dict[str, float]:
         """
         Calculates some metrics from y_true, y_pred.
 
@@ -46,8 +45,8 @@ class Evaluator(Visualizable):
 
         Returns
         -------
-        results : list
-            List of calculated metric values.
+        results : dict
+            Dict of calculated metric values labeled by their names.
         """
         raise NotImplementedError
 
@@ -81,12 +80,15 @@ class SequentialEvaluator(Evaluator):
         """
         Evaluates the true values and predictions.
         """
-        results = []
+        results = {}
         for evaluator in self.evaluators_list:
-            results += evaluator.evaluate(y_true, y_pred)
+            results.update(evaluator.evaluate(y_true, y_pred))
         return results
 
     def visualize(self, y_true, y_pred):
+        """
+        Plot the visualization either of all evaluators or only the last one.
+        """
         if self.visualize_only_last:
             return self.evaluators_list[-1].visualize(y_true, y_pred)
 
@@ -115,10 +117,10 @@ class UniversalEvaluator(Evaluator):
         This function calculates provided metrics.
         It prints and returns their results.
         """
-        results = []
+        results = {}
         for metric in self.metrics:
             res = metric(y_true, y_pred)
-            results.append(res)
+            results[metric.__name__] = res
             if self.verbose:
                 res = str(res).replace("\n", "\n\t")
                 print(f"{metric.__name__}:\n\t{res}")
@@ -130,7 +132,7 @@ class ClassificationEvaluator(Evaluator):
     Evaluator for classification results.
 
     ClassificationEvaluator calculates accuracy, precision, recall and
-    confusion metrix.
+    confusion matrix.
     """
 
     def evaluate(self, y_true, y_pred):
@@ -153,11 +155,12 @@ class ClassificationEvaluator(Evaluator):
         )
         report = classification_report(y_true, y_pred)
         print(report)
-        results = [
-            acc * 100,
-            prec * 100,
-            rec * 100,
-        ]
+        results = {
+            "accuracy": acc * 100,
+            "precision": prec * 100,
+            "recall": rec * 100,
+            "confusion matrix": conf_mat,
+        }
         return results
 
 
@@ -174,7 +177,7 @@ class RegressionEvaluator(Evaluator):
         mse = mean_squared_error(y_true=y_true, y_pred=y_pred)
         rmse = np.sqrt(mse)
         r2 = r2_score(y_true=y_true, y_pred=y_pred)
-        results = [mae, mse, rmse, r2]
+        results = {"MAE": mae, "MSE": mse, "RMSE": rmse, "R2": r2}
 
         print(
             f"""MAE:  {mae:>6.4f} 
