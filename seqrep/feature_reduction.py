@@ -1,13 +1,20 @@
-import abc
-from typing import List, Optional, Union
+"""
+Feature Reduction module
 
-import matplotlib.pyplot as plt
+This module performs feature reduction, i.e. feature selection or feature
+transformation (down-projection).
+"""
+
+import abc
+from typing import Optional, Union, List
+
 import pandas as pd
-from sklearn.base import BaseEstimator
-from sklearn.decomposition import PCA
-from sklearn.feature_selection import RFE, SelectKBest, VarianceThreshold, f_classif
-from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import TransformerMixin
+from sklearn.base import BaseEstimator
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.feature_selection import RFE, VarianceThreshold
+from sklearn.linear_model import LogisticRegression
+from sklearn.decomposition import PCA
 
 from .utils import Picklable, Visualizable, visualize_data
 
@@ -117,7 +124,7 @@ class SequentialFeatureReductor(FeatureReductor):
 class PCAReductor(FeatureReductor):
     """
     This reductor is based on Principal component analysis (PCA):
-    https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+    https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html.
 
     Attributes
     ----------
@@ -219,7 +226,7 @@ class FeatureSelector(FeatureReductor):
         X: array-like of shape  (n_samples, n_transformed_features)
             Data with selected features.
         """
-        selected_columns = [name for (_, name) in self.sorted_features][: self.number]
+        selected_columns = [name for (_, name) in self.sorted_features[: self.number]]
         return X[selected_columns]
 
 
@@ -308,7 +315,7 @@ class RFESelector(FeatureSelector):
     Selects features based on Recursive Feature Elimination.
 
     This selector is based on
-    https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html
+    https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html.
 
     Attributes
     ----------
@@ -324,7 +331,7 @@ class RFESelector(FeatureSelector):
 
     def __init__(
         self,
-        number,
+        number: Union[int, float],
         estimator=LogisticRegression(solver="lbfgs", multi_class="auto", max_iter=280),
     ):
         self.estimator = estimator
@@ -340,9 +347,9 @@ class RFESelector(FeatureSelector):
         self: object
             Fitted selector.
         """
-        super(RFESelector, self).fit(X)
+        super().fit(X)
 
-        selector = RFE(self.estimator, 1)
+        selector = RFE(estimator=self.estimator, n_features_to_select=1)
         selector.fit(X, y)
 
         values = 1 - (selector.ranking_ / max(selector.ranking_))
