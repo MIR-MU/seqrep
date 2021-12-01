@@ -1,4 +1,5 @@
 import abc
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
@@ -112,6 +113,33 @@ class TimeFeaturesExtractor(FeatureExtractor):
         return X
 
 
+class FuncApplyFeatureExtractor(FeatureExtractor):
+    """
+    Apply the specified function to extract features.
+
+    Attributes
+    ----------
+    func : callable
+        Function to apply on data.
+
+    columns_to_apply: string or List
+        Column names of data if it is list (function gets pd.DatFrame).
+        Name of one column if it is string (function gets pd.Series).
+    """
+
+    def __init__(self, func, columns_to_apply: Union[str, List[str]]):
+        self.func = func
+        self.columns_to_apply = columns_to_apply
+
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Apply the specified function on data.
+        Returns the data with added features.
+        """
+        new_features = self.func(X[self.columns_to_apply])
+        return X.join(new_features)
+
+
 # ############################################################################
 # ##########################  FINANCE FEATURES  ##############################
 # ############################################################################
@@ -150,7 +178,7 @@ class PandasTAExtractor(FeatureExtractor):
 class TAExtractor(FeatureExtractor):
     """
     Feature extractor based on technical analysis indicators from TA library:
-    https://github.com/bukosabino/ta
+    https://github.com/bukosabino/ta.
 
     Attributes:
     ----------
