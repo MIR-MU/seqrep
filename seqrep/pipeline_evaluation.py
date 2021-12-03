@@ -1,13 +1,20 @@
-from typing import Union, Tuple, List
-import datetime
-import pandas as pd
+"""
+Pipeline Evaluation module
 
-from .utils import Picklable, visualize_labels, visualize_data
+This module runs all the steps used and allows you to visualize them.
+"""
+
+import datetime
+from typing import List, Tuple, Union
+
+import pandas as pd
+from sklearn.pipeline import Pipeline
+
+from .evaluation import Evaluator
+from .feature_reduction import FeatureReductor
 from .labeling import Labeler
 from .splitting import Splitter
-from sklearn.pipeline import Pipeline
-from .feature_reduction import FeatureReductor
-from .evaluation import Evaluator
+from .utils import Picklable, visualize_data, visualize_labels
 
 
 class PipelineEvaluator(Picklable):
@@ -98,8 +105,8 @@ class PipelineEvaluator(Picklable):
 
         Returns
         -------
-        y_pred : list
-            List of predicted values on the test-data subset.
+        result : dict
+            Dict of calculated metric values labeled by their names.
         """
 
         self._log("Labeling data")
@@ -162,3 +169,5 @@ class PipelineEvaluator(Picklable):
                 if "evaluator" in self.visualize:
                     self.evaluator.visualize(y_true=y_test, y_pred=y_pred)
                 return result
+
+        return X_train, X_test, y_train, y_test
