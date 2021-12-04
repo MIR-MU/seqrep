@@ -9,6 +9,22 @@
 
 *Scientific framework for representation in sequential data*
 
+
+## Table of Content
+<details>
+<summary>Click to expand!</summary>
+
+- [SeqRep](#seqrep)
+    - [Table of Content](#table-of-content)
+    - [Description](#description)
+    - [Installation](#installation)
+    - [Features](#features)
+    - [Usage](#usage)
+    - [License](#license)
+    - [Acknowledgement](#acknowledgement)
+</details>
+
+
 ## Description
 
 This package aims to simplify the workflow of **evaluation of machine learning models**. It is primarily focused on sequential data. It helps with:
@@ -24,13 +40,17 @@ It also allows you to **visualize** each step.
 
 The framework is designed for easy customization and extension of its functionality.
 
+
 ## Installation
 
 ```bash
 python -m pip install git+https://github.com/MIR-MU/seqrep
 ```
+
+
 ## Features
 See the `README` in the [seqrep folder](seqrep).
+
 
 ## Usage
 
@@ -68,13 +88,17 @@ pipe_eval = PipelineEvaluator(labeler = NextColorLabeler(),
 # 3. step
 result = pipe_eval.run(data=data)
 ```
-See the [examples folder](examples) for more details. Or [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/SimpleClassificationExample.ipynb).
+See the [examples folder](examples) for more details.
 
-## License 
+
+## License
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](LICENSE)
 
 This package is licensed under the [MIT license](LICENSE), so it is open source. Feel free to use it!
 
+
 ## Acknowledgement
 
 Thanks for the huge support to my supervisor [Michal Stefanik](https://github.com/stefanik12)! Gratitude also belongs to all members of the [MIR-MU](https://github.com/MIR-MU/) group. Finally, thanks go to the Faculty of Informatics of Masaryk University for supporting this project as a dean's project.
+
+[![](https://img.shields.io/badge/back%20to%20top-%E2%86%A9-blue)](#seqrep)
