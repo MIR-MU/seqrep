@@ -53,7 +53,7 @@ class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
         """
@@ -68,7 +68,7 @@ class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -96,7 +96,7 @@ class FeatureSelectorExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -133,7 +133,7 @@ class PreviousValuesExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -172,7 +172,7 @@ class TimeFeaturesExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -203,7 +203,7 @@ class FuncApplyFeatureExtractor(FeatureExtractor):
     def __init__(self, func, columns_to_apply: Union[str, List[str]]):
         self.func = func
         self.columns_to_apply = columns_to_apply
-        
+
     def transform(self, X, y=None) -> pd.DataFrame:
         """
         Apply the specified function on data.
@@ -212,7 +212,7 @@ class FuncApplyFeatureExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -254,7 +254,7 @@ class PandasTAExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -330,7 +330,7 @@ class TAExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data in OHLCV format.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -443,7 +443,7 @@ class HRVExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 

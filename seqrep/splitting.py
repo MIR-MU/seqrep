@@ -64,7 +64,7 @@ class TrainTestSplitter(Splitter):
     """
     Splitting to train and test taken from scikit-learn.model_selection
     (https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html).
-    
+
     Attributes
     ----------
     test_size : float or int, default=None

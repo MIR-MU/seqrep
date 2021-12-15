@@ -52,7 +52,7 @@ class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -76,7 +76,7 @@ class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable
             Training targets.
 
@@ -131,7 +131,7 @@ class SequentialFeatureReductor(FeatureReductor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -194,7 +194,7 @@ class PCAReductor(FeatureReductor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 

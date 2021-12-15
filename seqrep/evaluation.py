@@ -36,13 +36,17 @@ class Evaluator(Visualizable):
         y_pred : list
             Predictions of the trained model
         """
-        
+
         if self.threshold is None:
             return y_pred.argmax(1)
         return (y_pred > self.threshold).argmax(1)
 
     @abc.abstractmethod
-    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
+    def evaluate(
+        self,
+        y_true: Union[pd.Series, pd.DataFrame],
+        y_pred: Union[pd.Series, pd.DataFrame],
+    ) -> Dict[str, float]:
         """
         Calculates some metrics from y_true, y_pred.
 
@@ -98,7 +102,11 @@ class SequentialEvaluator(Evaluator):
         self.evaluators_list = evaluators_list
         self.visualize_only_last = visualize_only_last
 
-    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
+    def evaluate(
+        self,
+        y_true: Union[pd.Series, pd.DataFrame],
+        y_pred: Union[pd.Series, pd.DataFrame],
+    ) -> Dict[str, float]:
         """
         Evaluates the true values and predictions using all evaluators.
 
@@ -156,11 +164,15 @@ class UniversalEvaluator(Evaluator):
         self.metrics = metrics
         self.verbose = verbose
 
-    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
+    def evaluate(
+        self,
+        y_true: Union[pd.Series, pd.DataFrame],
+        y_pred: Union[pd.Series, pd.DataFrame],
+    ) -> Dict[str, float]:
         """
         This function calculates provided metrics.
         It prints and returns their results.
-        
+
         Parameters
         ----------
         y_true : list
@@ -193,7 +205,11 @@ class ClassificationEvaluator(Evaluator):
     confusion matrix.
     """
 
-    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
+    def evaluate(
+        self,
+        y_true: Union[pd.Series, pd.DataFrame],
+        y_pred: Union[pd.Series, pd.DataFrame],
+    ) -> Dict[str, float]:
         """
         Calculates accuracy, precision, recall and confusion matrix.
 
@@ -246,7 +262,11 @@ class RegressionEvaluator(Evaluator):
     (and its root) and R2 score.
     """
 
-    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
+    def evaluate(
+        self,
+        y_true: Union[pd.Series, pd.DataFrame],
+        y_pred: Union[pd.Series, pd.DataFrame],
+    ) -> Dict[str, float]:
         """
         Calculates Mean Absolute Error, Mean Squared Error and its root,
         and R2 score.

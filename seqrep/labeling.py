@@ -21,12 +21,12 @@ class Labeler(BaseEstimator, TransformerMixin, Picklable, Visualizable):
     def fit(self, X, y=None, **fit_params):
         """
         Returns self (it doesn't do anything with the data).
-        
+
         Parameters
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
         """
@@ -36,14 +36,14 @@ class Labeler(BaseEstimator, TransformerMixin, Picklable, Visualizable):
     def transform(self, X, y=None):
         """
         Calculates the labels and returns them.
-        
+
         Parameters
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
-            Training targets.        
+            Training targets.
         """
         raise NotImplementedError
 
@@ -80,7 +80,7 @@ class NextColorLabeler(Labeler):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -126,7 +126,7 @@ class NextSentimentLabeler(Labeler):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
         """
@@ -179,7 +179,7 @@ class ClassificationLabeler(Labeler):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
         """
@@ -211,7 +211,7 @@ class RegressionLabeler(Labeler):
     ----------
     duration: int
         Maximal length for reaching label value
-    
+
     positive: str
         Column of the move in the positive direction.
 
@@ -222,7 +222,13 @@ class RegressionLabeler(Labeler):
         Column of the reference value.
     """
 
-    def __init__(self, duration: int = 1, positive: str = "high", negative: str = "low", base: str = "close"):
+    def __init__(
+        self,
+        duration: int = 1,
+        positive: str = "high",
+        negative: str = "low",
+        base: str = "close",
+    ):
         self.duration = duration
         self.positive = positive
         self.negative = negative
@@ -237,7 +243,7 @@ class RegressionLabeler(Labeler):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
         """

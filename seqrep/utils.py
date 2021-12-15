@@ -20,7 +20,7 @@ class Picklable:
     Simple class for saving (and loading) functionality using pickle.
     """
 
-    def save(self, name: str=None, concat: bool=False):
+    def save(self, name: str = None, concat: bool = False):
         """
         Save object using pickle.
 
@@ -30,7 +30,7 @@ class Picklable:
             The filename for the saved object.
 
         concat: bool
-            Whether to add the class name to the file name.         
+            Whether to add the class name to the file name.
         """
 
         if name is None:
@@ -40,7 +40,7 @@ class Picklable:
         with open(name, "wb") as output:
             pickle.dump(self, output, -1)
 
-    def load(self, name: str=None, concat: bool=False):
+    def load(self, name: str = None, concat: bool = False):
         """
         Load object using pickle.
 
@@ -50,7 +50,7 @@ class Picklable:
             The filename for the loaded object.
 
         concat: bool
-            Whether to add the class name to the file name.         
+            Whether to add the class name to the file name.
         """
 
         if name is None:
@@ -128,7 +128,7 @@ def visualize_data(
         Data downprojection method for visualization.
 
     title: str
-        Title of the plot.    
+        Title of the plot.
     """
     if downprojector is not None:
         embedding = downprojector.fit_transform(X)

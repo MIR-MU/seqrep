@@ -55,7 +55,7 @@ class Scaler(abc.ABC, TransformerMixin, BaseEstimator, Picklable):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -90,7 +90,7 @@ class Scaler(abc.ABC, TransformerMixin, BaseEstimator, Picklable):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -141,7 +141,7 @@ class StandardScaler(Scaler):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -160,7 +160,7 @@ class StandardScaler(Scaler):
         X : array-like of shape  (n_samples, n_transformed_features)
             Data samples, where ``n_samples`` is the number of samples and
             ``n_features`` is the number of features.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -217,7 +217,7 @@ class UniversalScaler(Scaler):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
@@ -237,7 +237,7 @@ class UniversalScaler(Scaler):
         X : array-like of shape  (n_samples, n_transformed_features)
             Data samples, where ``n_samples`` is the number of samples and
             ``n_features`` is the number of features.
-        
+
         y : iterable, default=None
             Training targets.
 
