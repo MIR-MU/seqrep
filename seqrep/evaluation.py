@@ -1,11 +1,13 @@
 """
 Evaluation module
 
-This module implements the evaluation process. It calculates the results from actual values and predictions. It also allows visualization.
+This module implements the evaluation process.
+It calculates the results from actual values and predictions.
+It also allows visualization.
 """
 
 import abc
-from typing import List, Dict
+from typing import List, Dict, Union
 import numpy as np
 import pandas as pd
 
@@ -26,12 +28,21 @@ class Evaluator(Visualizable):
         self.threshold = threshold
 
     def _transform(self, y_pred):
+        """
+        Transforms multi-dimensional predictions into one dimension.
+
+        Parameters
+        ----------
+        y_pred : list
+            Predictions of the trained model
+        """
+        
         if self.threshold is None:
             return y_pred.argmax(1)
         return (y_pred > self.threshold).argmax(1)
 
     @abc.abstractmethod
-    def evaluate(self, y_true, y_pred) -> Dict[str, float]:
+    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
         """
         Calculates some metrics from y_true, y_pred.
 
@@ -53,6 +64,14 @@ class Evaluator(Visualizable):
     def visualize(self, y_true, y_pred) -> None:
         """
         Plot predictions and true values.
+
+        Parameters
+        ----------
+        y_true : list
+            Ground truth data (original/unseen labels).
+
+        y_pred : list
+            Predictions of the trained model
         """
         labels = pd.DataFrame({"y_true": y_true, "y_pred": y_pred})
         return visualize_labels(
@@ -68,6 +87,9 @@ class SequentialEvaluator(Evaluator):
     ----------
     evaluators_list: list
         List of Evaluators.
+
+    visualize_only_last: bool
+        Whether only the last evaluator should be used for visualization.
     """
 
     def __init__(
@@ -76,10 +98,24 @@ class SequentialEvaluator(Evaluator):
         self.evaluators_list = evaluators_list
         self.visualize_only_last = visualize_only_last
 
-    def evaluate(self, y_true, y_pred):
+    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
         """
-        Evaluates the true values and predictions.
+        Evaluates the true values and predictions using all evaluators.
+
+        Parameters
+        ----------
+        y_true : list
+            Ground truth data (original/unseen labels).
+
+        y_pred : list
+            Predictions of the trained model
+
+        Returns
+        -------
+        results : dict
+            Dict of calculated metric values labeled by their names.
         """
+
         results = {}
         for evaluator in self.evaluators_list:
             results.update(evaluator.evaluate(y_true, y_pred))
@@ -88,6 +124,14 @@ class SequentialEvaluator(Evaluator):
     def visualize(self, y_true, y_pred):
         """
         Plot the visualization either of all evaluators or only the last one.
+
+        Parameters
+        ----------
+        y_true : list
+            Ground truth data (original/unseen labels).
+
+        y_pred : list
+            Predictions of the trained model
         """
         if self.visualize_only_last:
             return self.evaluators_list[-1].visualize(y_true, y_pred)
@@ -112,11 +156,25 @@ class UniversalEvaluator(Evaluator):
         self.metrics = metrics
         self.verbose = verbose
 
-    def evaluate(self, y_true, y_pred):
+    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
         """
         This function calculates provided metrics.
         It prints and returns their results.
+        
+        Parameters
+        ----------
+        y_true : list
+            Ground truth data (original/unseen labels).
+
+        y_pred : list
+            Predictions of the trained model
+
+        Returns
+        -------
+        results : dict
+            Dict of calculated metric values labeled by their names.
         """
+
         results = {}
         for metric in self.metrics:
             res = metric(y_true, y_pred)
@@ -135,7 +193,23 @@ class ClassificationEvaluator(Evaluator):
     confusion matrix.
     """
 
-    def evaluate(self, y_true, y_pred):
+    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
+        """
+        Calculates accuracy, precision, recall and confusion matrix.
+
+        Parameters
+        ----------
+        y_true : list
+            Ground truth data (original/unseen labels).
+
+        y_pred : list
+            Predictions of the trained model
+
+        Returns
+        -------
+        results : dict
+            Dict of calculated metric values labeled by their names.
+        """
         acc = accuracy_score(y_true, y_pred)
         conf_mat = confusion_matrix(y_true, y_pred)
 
@@ -172,7 +246,24 @@ class RegressionEvaluator(Evaluator):
     (and its root) and R2 score.
     """
 
-    def evaluate(self, y_true, y_pred):
+    def evaluate(self, y_true: Union[pd.Series, pd.DataFrame], y_pred: Union[pd.Series, pd.DataFrame]) -> Dict[str, float]:
+        """
+        Calculates Mean Absolute Error, Mean Squared Error and its root,
+        and R2 score.
+
+        Parameters
+        ----------
+        y_true : list
+            Ground truth data (original/unseen labels).
+
+        y_pred : list
+            Predictions of the trained model
+
+        Returns
+        -------
+        results : dict
+            Dict of calculated metric values labeled by their names.
+        """
         mae = mean_absolute_error(y_true=y_true, y_pred=y_pred)
         mse = mean_squared_error(y_true=y_true, y_pred=y_pred)
         rmse = np.sqrt(mse)

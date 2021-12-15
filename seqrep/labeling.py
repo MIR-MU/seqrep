@@ -1,7 +1,12 @@
+"""
+Labeling module
+
+With this module you can create labels for the data.
+"""
+
 import abc
 
 import pandas as pd
-import plotly.graph_objects as go
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import TransformerMixin
 
@@ -14,10 +19,32 @@ class Labeler(BaseEstimator, TransformerMixin, Picklable, Visualizable):
     """
 
     def fit(self, X, y=None, **fit_params):
+        """
+        Returns self (it doesn't do anything with the data).
+        
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+        """
         return self
 
     @abc.abstractmethod
     def transform(self, X, y=None):
+        """
+        Calculates the labels and returns them.
+        
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.        
+        """
         raise NotImplementedError
 
     def visualize(self, labels, X=None, mode: str = "lines") -> None:
@@ -46,6 +73,22 @@ class NextColorLabeler(Labeler):
         self.column_end = column_end
 
     def transform(self, X, y=None):
+        """
+        Calculates the binary labels from next sample point.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+
+        Returns
+        -------
+        labels: pd.DataFrame or pd.Series
+            Calculated labels.
+        """
         if not isinstance(X, pd.DataFrame):
             X = pd.DataFrame(X, columns=["open", "high", "low", "close", "volume"])
         labels = ((X[self.column_end] - X[self.column_start]).shift(-1) > 0).astype(int)
@@ -77,7 +120,15 @@ class NextSentimentLabeler(Labeler):
 
     def transform(self, X, y=None):
         """
-        Calculates the labels and returns them.
+        Calculates the binary labels from next sample point.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
         """
         labels = (
             (
@@ -121,6 +172,17 @@ class ClassificationLabeler(Labeler):
         self.stop_loss = stop_loss
 
     def transform(self, X, y=None):
+        """
+        Calculates the labels according to target_profit and stop_loss values.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+        """
         labels = RegressionLabeler(duration=self.duration).transform(X)
         labels["label"] = 0
         labels["label"] = labels["label"].mask(
@@ -149,26 +211,50 @@ class RegressionLabeler(Labeler):
     ----------
     duration: int
         Maximal length for reaching label value
+    
+    positive: str
+        Column of the move in the positive direction.
+
+    negative: str
+        Column of the move in the negative direction.
+
+    base: str
+        Column of the reference value.
     """
 
-    def __init__(self, duration: int = 1):
+    def __init__(self, duration: int = 1, positive: str = "high", negative: str = "low", base: str = "close"):
         self.duration = duration
+        self.positive = positive
+        self.negative = negative
+        self.base = base
 
     def transform(self, X, y=None):
+        """
+        Finds maximal and minimal values in n future samples,
+        where n is the duration.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+        """
         labels = pd.DataFrame(index=X.index)
         labels["positive_label"] = (
-            X["high"].shift(-self.duration).rolling(self.duration).max()
+            X[self.positive].shift(-self.duration).rolling(self.duration).max()
         )
         labels["negative_label"] = (
-            X["low"].shift(-self.duration).rolling(self.duration).min()
+            X[self.negative].shift(-self.duration).rolling(self.duration).min()
         )
         for i in range(self.duration - 1):
-            labels.loc[labels.index[i], ("positive_label",)] = X["high"][
+            labels.loc[labels.index[i], ("positive_label",)] = X[self.positive][
                 i : i + self.duration - 1
             ].max()
-            labels.loc[labels.index[i], ("negative_label",)] = X["low"][
+            labels.loc[labels.index[i], ("negative_label",)] = X[self.negative][
                 i : i + self.duration - 1
             ].min()
-        labels["positive_label"] -= X["close"]  # to do or not ?
-        labels["negative_label"] -= X["close"]  # to do or not ?
+        labels["positive_label"] -= X[self.base]
+        labels["negative_label"] -= X[self.base]
         return labels

@@ -1,6 +1,10 @@
-import abc
+"""
+Utils
 
-import matplotlib.pyplot as plt
+This file provides an implementation of helping classes and functions.
+"""
+
+import abc
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -16,7 +20,19 @@ class Picklable:
     Simple class for saving (and loading) functionality using pickle.
     """
 
-    def save(self, name=None, concat=False):
+    def save(self, name: str=None, concat: bool=False):
+        """
+        Save object using pickle.
+
+        Parameters
+        ----------
+        name: str
+            The filename for the saved object.
+
+        concat: bool
+            Whether to add the class name to the file name.         
+        """
+
         if name is None:
             name = self.__class__.__name__
         if concat:
@@ -24,7 +40,19 @@ class Picklable:
         with open(name, "wb") as output:
             pickle.dump(self, output, -1)
 
-    def load(self, name=None, concat=False):
+    def load(self, name: str=None, concat: bool=False):
+        """
+        Load object using pickle.
+
+        Parameters
+        ----------
+        name: str
+            The filename for the loaded object.
+
+        concat: bool
+            Whether to add the class name to the file name.         
+        """
+
         if name is None:
             name = self.__class__.__name__
         if concat:
@@ -51,6 +79,19 @@ def visualize_labels(
 ) -> None:
     """
     Plot labels.
+
+    Parameters
+    ----------
+    title: str
+        Title of the plot.
+
+    mode: str
+        Determines the drawing mode for this scatter trace. If
+        the provided `mode` includes "text" then the `text`
+        elements appear at the coordinates. Otherwise, the
+        `text` elements appear on hover. If there are less than
+        20 points and the trace is not stacked then the default
+        is "lines+markers". Otherwise, "lines".
     """
     if len(labels.shape) == 1:
         labels = pd.DataFrame(labels, columns=["labels"])
@@ -74,6 +115,20 @@ def visualize_data(
 ) -> None:
     """
     Plot data in 2D.
+
+    Parameters
+    ----------
+    X : iterable
+        Training data.
+
+    y : iterable
+        Training targets.
+
+    downprojector : callable, default=None
+        Data downprojection method for visualization.
+
+    title: str
+        Title of the plot.    
     """
     if downprojector is not None:
         embedding = downprojector.fit_transform(X)

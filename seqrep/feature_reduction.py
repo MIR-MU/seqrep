@@ -52,6 +52,9 @@ class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
         ----------
         X : iterable
             Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
 
         Returns
         -------
@@ -66,6 +69,23 @@ class FeatureReductor(BaseEstimator, TransformerMixin, Picklable, Visualizable):
         downprojector=None,
         title: str = "Visualization of FeatureReductor output",
     ) -> None:
+        """
+        Plot the data after feature reduction
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable
+            Training targets.
+
+        downprojector : callable
+            Data downprojection method for visualization.
+
+        title : str
+            Title of the plot.
+        """
         return visualize_data(X=X, y=y, downprojector=downprojector, title=title)
 
 
@@ -111,6 +131,9 @@ class SequentialFeatureReductor(FeatureReductor):
         ----------
         X : iterable
             Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
 
         Returns
         -------
@@ -171,6 +194,9 @@ class PCAReductor(FeatureReductor):
         ----------
         X : iterable
             Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
 
         Returns
         -------
@@ -205,6 +231,7 @@ class FeatureSelector(FeatureReductor):
         ----------
         X: iterable
             Features for selection.
+
         y: iterable
             Labels for selection.
 
@@ -225,6 +252,9 @@ class FeatureSelector(FeatureReductor):
         -------
         X: array-like of shape  (n_samples, n_transformed_features)
             Data with selected features.
+
+        y : iterable, default=None
+            Training targets.
         """
         selected_columns = [name for (_, name) in self.sorted_features[: self.number]]
         return X[selected_columns]

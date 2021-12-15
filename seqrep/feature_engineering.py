@@ -1,37 +1,43 @@
-import abc
-from typing import List, Union
+"""
+Feature engineering module
 
-import numpy as np
+This module implements various methods for deriving new data features.
+There are some general methods and some domain-specific ones (finance, health care).
+"""
+
+import abc
 import pandas as pd
+from numpy_ext import rolling_apply
+import numpy as np
+from sklearn.pipeline import TransformerMixin
+from sklearn.base import BaseEstimator
+from tqdm.auto import tqdm
+from typing import Union, List
 
 # Finance
 import pandas_ta as ta
+from ta import (
+    add_volume_ta,
+    add_volatility_ta,
+    add_trend_ta,
+    add_momentum_ta,
+    add_others_ta,
+    add_all_ta_features,
+)
 
 # Health care
 from hrvanalysis.extract_features import (
-    get_csi_cvi_features,
-    get_frequency_domain_features,
+    get_time_domain_features,
     get_geometrical_features,
+    get_frequency_domain_features,
+    get_csi_cvi_features,
     get_poincare_plot_features,
     get_sampen,
-    get_time_domain_features,
 )
-from numpy_ext import rolling_apply
-from sklearn.base import BaseEstimator
-from sklearn.pipeline import TransformerMixin
-from ta import (
-    add_all_ta_features,
-    add_momentum_ta,
-    add_others_ta,
-    add_trend_ta,
-    add_volatility_ta,
-    add_volume_ta,
-)
-from tqdm.auto import tqdm
-
-from .utils import Picklable
 
 # import talib
+
+from .utils import Picklable
 
 
 class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
@@ -40,17 +46,31 @@ class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
     """
 
     def fit(self, X, y=None, **fit_params):
-        return self
-
-    @abc.abstractmethod
-    def transform(self, X, y=None):
         """
-        Extract or select features.
+        Returns self (it doesn't do anything with the data).
 
         Parameters
         ----------
         X : iterable
             Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+        """
+        return self
+
+    @abc.abstractmethod
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Extracts or selects features.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
 
         Returns
         -------
@@ -68,7 +88,23 @@ class FeatureSelectorExtractor(FeatureExtractor):
         self.ordered_features = ordered_features
         self.n = n
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Selects features.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+
         X.drop(
             columns=[col for col in X.columns if col not in self.ordered_features],
             inplace=True,
@@ -78,13 +114,34 @@ class FeatureSelectorExtractor(FeatureExtractor):
 
 class PreviousValuesExtractor(FeatureExtractor):
     """
-    Add features from previous sample point.
+    Adds features from previous sample point.
+
+    Attributes
+    ----------
+    shift: int, default=None
+        A number representing the previous example should be used.
     """
 
     def __init__(self, shift: int = None):
         self.shift = 1 if shift is None else shift
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Adds features from n-th previous sample point, where n is the shift.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+
         for column in X.columns:
             X.loc[:, f"{column}_shift={self.shift}"] = X[column].shift(self.shift)
         return X
@@ -92,7 +149,7 @@ class PreviousValuesExtractor(FeatureExtractor):
 
 class TimeFeaturesExtractor(FeatureExtractor):
     """
-    Add time features.
+    Adds time features.
 
     Attributes
     ----------
@@ -107,7 +164,23 @@ class TimeFeaturesExtractor(FeatureExtractor):
             else intervals
         )
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Adds selected time features.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+
         for interval in self.intervals:
             X.loc[:, interval] = getattr(X.index, interval)
         return X
@@ -130,11 +203,22 @@ class FuncApplyFeatureExtractor(FeatureExtractor):
     def __init__(self, func, columns_to_apply: Union[str, List[str]]):
         self.func = func
         self.columns_to_apply = columns_to_apply
-
+        
     def transform(self, X, y=None) -> pd.DataFrame:
         """
         Apply the specified function on data.
-        Returns the data with added features.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
         """
         new_features = self.func(X[self.columns_to_apply])
         return X.join(new_features)
@@ -147,11 +231,11 @@ class FuncApplyFeatureExtractor(FeatureExtractor):
 
 class PandasTAExtractor(FeatureExtractor):
     """
-    Add Pandas TA features.
+    Adds Pandas TA features.
 
     Attributes
     ----------
-    intervals : list (string enum)
+    indicators : list (string enum)
         List of desired indicators.
     """
 
@@ -162,7 +246,23 @@ class PandasTAExtractor(FeatureExtractor):
             else indicators
         )
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Calculates selected indicators and adds them to the data.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+
         cumulative_indicators = ["log_return", "percent_return", "trend_return"]
         for indicator in tqdm(
             self.indicators, leave=False, desc="Calculating Pandas TA indicators"
@@ -224,12 +324,15 @@ class TAExtractor(FeatureExtractor):
 
     def transform(self, X, y=None) -> pd.DataFrame:
         """
-        Calculates features (technical indicators).
+        Calculates features (technical indicators) of selected type.
 
         Parameters
         ----------
         X : iterable
             Data in OHLCV format.
+        
+        y : iterable, default=None
+            Training targets.
 
         Returns
         -------
@@ -332,7 +435,23 @@ class HRVExtractor(FeatureExtractor):
         self.methods = methods
         self.n_jobs = n_jobs
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.DataFrame:
+        """
+        Calculates HRV features by selected methods.
+
+        Parameters
+        ----------
+        X : iterable
+            Data to transform.
+        
+        y : iterable, default=None
+            Training targets.
+
+        Returns
+        -------
+        Xt : array-like of shape  (n_samples, n_transformed_features)
+        """
+
         if self.columns is None:
             self.columns = [X.columns[-1]]
 

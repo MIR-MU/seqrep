@@ -155,6 +155,10 @@ class PipelineEvaluator(Picklable):
             self.model.fit(X_train, y_train)
             if "model" in self.visualize:
                 y_pred = self.model.predict(X_train)
+                if len(y_pred.shape) == 1 or y_pred.shape[1] == 1:
+                    y_pred = pd.Series(y_pred, index=X_train.index)
+                else:
+                    y_pred = pd.DataFrame(y_pred, index=X_train.index)
                 visualize_labels(
                     labels=pd.DataFrame({"y_true": y_train, "y_pred": y_pred}),
                     title="Visualize TRAIN predictions and true values",
@@ -162,6 +166,10 @@ class PipelineEvaluator(Picklable):
 
             self._log("Predicting")
             y_pred = self.model.predict(X_test)
+            if len(y_pred.shape) == 1 or y_pred.shape[1] == 1:
+                y_pred = pd.Series(y_pred, index=X_test.index)
+            else:
+                y_pred = pd.DataFrame(y_pred, index=X_test.index)
 
             if self.evaluator is not None:
                 self._log("Evaluating predictions")
