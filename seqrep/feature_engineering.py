@@ -443,7 +443,7 @@ class HRVExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-
+        
         y : iterable, default=None
             Training targets.
 
@@ -457,11 +457,12 @@ class HRVExtractor(FeatureExtractor):
 
         for column in tqdm(self.columns, leave=False, desc="Calculating columns"):
             for method in tqdm(self.methods, leave=False, desc="Calculating methods"):
+                x_column = X[column].dropna(axis=0)
                 features = pd.DataFrame.from_records(
-                    rolling_apply(method, self.window, X[column], n_jobs=self.n_jobs)[
+                    rolling_apply(method, self.window, x_column, n_jobs=self.n_jobs)[
                         self.window - 1 :
                     ],
-                    index=X.index[self.window - 1 :],
+                    index=x_column.index[self.window - 1 :],
                 )
                 features = features.add_suffix(f"-{column}")
                 X = X.join(features)
