@@ -6,38 +6,39 @@ There are some general methods and some domain-specific ones (finance, health ca
 """
 
 import abc
-import pandas as pd
-from numpy_ext import rolling_apply
+from typing import List, Union
+
 import numpy as np
-from sklearn.pipeline import TransformerMixin
-from sklearn.base import BaseEstimator
-from tqdm.auto import tqdm
-from typing import Union, List
+import pandas as pd
 
 # Finance
 import pandas_ta as ta
-from ta import (
-    add_volume_ta,
-    add_volatility_ta,
-    add_trend_ta,
-    add_momentum_ta,
-    add_others_ta,
-    add_all_ta_features,
-)
 
 # Health care
 from hrvanalysis.extract_features import (
-    get_time_domain_features,
-    get_geometrical_features,
-    get_frequency_domain_features,
     get_csi_cvi_features,
+    get_frequency_domain_features,
+    get_geometrical_features,
     get_poincare_plot_features,
     get_sampen,
+    get_time_domain_features,
 )
-
-# import talib
+from numpy_ext import rolling_apply
+from sklearn.base import BaseEstimator
+from sklearn.pipeline import TransformerMixin
+from ta import (
+    add_all_ta_features,
+    add_momentum_ta,
+    add_others_ta,
+    add_trend_ta,
+    add_volatility_ta,
+    add_volume_ta,
+)
+from tqdm.auto import tqdm
 
 from .utils import Picklable
+
+# import talib
 
 
 class FeatureExtractor(abc.ABC, BaseEstimator, TransformerMixin, Picklable):
@@ -195,14 +196,20 @@ class FuncApplyFeatureExtractor(FeatureExtractor):
     func : callable
         Function to apply on data.
 
-    columns_to_apply: string or List
+    columns_to_apply : str or List
         Column names of data if it is list (function gets pd.DatFrame).
         Name of one column if it is string (function gets pd.Series).
+
+    rsuffix : str
+        Rsuffix for join operation.
     """
 
-    def __init__(self, func, columns_to_apply: Union[str, List[str]]):
+    def __init__(
+        self, func, columns_to_apply: Union[str, List[str]], rsuffix: str = "_"
+    ):
         self.func = func
         self.columns_to_apply = columns_to_apply
+        self.rsuffix = rsuffix
 
     def transform(self, X, y=None) -> pd.DataFrame:
         """
@@ -221,7 +228,7 @@ class FuncApplyFeatureExtractor(FeatureExtractor):
         Xt : array-like of shape  (n_samples, n_transformed_features)
         """
         new_features = self.func(X[self.columns_to_apply])
-        return X.join(new_features)
+        return X.join(new_features, rsuffix=self.rsuffix)
 
 
 # ############################################################################
@@ -443,7 +450,7 @@ class HRVExtractor(FeatureExtractor):
         ----------
         X : iterable
             Data to transform.
-        
+
         y : iterable, default=None
             Training targets.
 
