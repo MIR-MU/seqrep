@@ -5,6 +5,7 @@ With this module you can create labels for the data.
 """
 
 import abc
+from typing import Tuple
 
 import pandas as pd
 from sklearn.base import BaseEstimator
@@ -72,7 +73,7 @@ class NextColorLabeler(Labeler):
         self.column_start = column_start
         self.column_end = column_end
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.Series:
         """
         Calculates the binary labels from next sample point.
 
@@ -86,7 +87,7 @@ class NextColorLabeler(Labeler):
 
         Returns
         -------
-        labels: pd.DataFrame or pd.Series
+        labels: pd.Series
             Calculated labels.
         """
         if not isinstance(X, pd.DataFrame):
@@ -118,7 +119,7 @@ class NextSentimentLabeler(Labeler):
         self.negative = negative
         self.base = base
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.Series:
         """
         Calculates the binary labels from next sample point.
 
@@ -129,6 +130,11 @@ class NextSentimentLabeler(Labeler):
 
         y : iterable, default=None
             Training targets.
+
+        Returns
+        -------
+        labels: pd.Series
+            Calculated labels.
         """
         labels = (
             (
@@ -147,16 +153,16 @@ class ClassificationLabeler(Labeler):
     ----------
     duration: int
         Maximal length for reaching label value,
-        i.e number of future datapoints
+        i.e number of future datapoints.
 
     pip_size: float
-        Size of one pip in units of currency (usually 0.0001)
+        Size of one pip in units of currency (usually 0.0001).
 
     target_profit: float
-        Size of the target profit in pips
+        Size of the target profit in pips.
 
     stop_loss: float
-        Size of the stop loss in pips
+        Size of the stop loss in pips.
     """
 
     def __init__(
@@ -171,7 +177,7 @@ class ClassificationLabeler(Labeler):
         self.target_profit = target_profit
         self.stop_loss = stop_loss
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> pd.DataFrame:
         """
         Calculates the labels according to target_profit and stop_loss values.
 
@@ -182,6 +188,11 @@ class ClassificationLabeler(Labeler):
 
         y : iterable, default=None
             Training targets.
+
+        Returns
+        -------
+        labels: pd.DataFrame
+            Calculated labels.
         """
         labels = RegressionLabeler(duration=self.duration).transform(X)
         labels["label"] = 0
@@ -234,7 +245,7 @@ class RegressionLabeler(Labeler):
         self.negative = negative
         self.base = base
 
-    def transform(self, X, y=None):
+    def transform(self, X, y=None) -> Tuple[pd.DataFrame, pd.Series]:
         """
         Finds maximal and minimal values in n future samples,
         where n is the duration.
@@ -246,6 +257,11 @@ class RegressionLabeler(Labeler):
 
         y : iterable, default=None
             Training targets.
+
+        Returns
+        -------
+        labels: pd.DataFrame
+            Calculated labels.
         """
         labels = pd.DataFrame(index=X.index)
         labels["positive_label"] = (
@@ -263,4 +279,6 @@ class RegressionLabeler(Labeler):
             ].min()
         labels["positive_label"] -= X[self.base]
         labels["negative_label"] -= X[self.base]
+        if self.positive == self.negative:
+            return labels["positive_label"].rename({"positive_label": "label"})
         return labels
