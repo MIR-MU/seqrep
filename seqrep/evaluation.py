@@ -7,14 +7,20 @@ It also allows visualization.
 """
 
 import abc
-from typing import List, Dict, Union
+from typing import Dict, List, Tuple, Union
+
 import numpy as np
 import pandas as pd
-
-from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.metrics import classification_report, precision_score, recall_score
-
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 
 from .utils import Visualizable, visualize_labels
 
@@ -26,6 +32,26 @@ class Evaluator(Visualizable):
 
     def __init__(self, threshold=None):
         self.threshold = threshold
+
+    def _drop_na(
+        self,
+        y_true: Union[pd.Series, pd.DataFrame],
+        y_pred: Union[pd.Series, pd.DataFrame],
+    ) -> Tuple[Union[pd.Series, pd.DataFrame], Union[pd.Series, pd.DataFrame]]:
+        """
+        Removes Nan values from y_true and adjusts y_pred accordingly.
+
+        Parameters
+        ----------
+        y_true : pd.Series or pd.DataFrame
+            Ground truth data (original/unseen labels).
+
+        y_pred : pd.Series or pd.DataFrame
+            Predictions of the trained model
+        """
+        y_true = y_true.dropna(axis=0)
+        y_pred = y_pred.loc[y_true.index]
+        return y_true, y_pred
 
     def _transform(self, y_pred):
         """
@@ -52,10 +78,10 @@ class Evaluator(Visualizable):
 
         Parameters
         ----------
-        y_true : list
+        y_true : pd.Series or pd.DataFrame
             Ground truth data (original/unseen labels).
 
-        y_pred : list
+        y_pred : pd.Series or pd.DataFrame
             Predictions of the trained model
 
         Returns
@@ -71,10 +97,10 @@ class Evaluator(Visualizable):
 
         Parameters
         ----------
-        y_true : list
+        y_true : pd.Series or pd.DataFrame
             Ground truth data (original/unseen labels).
 
-        y_pred : list
+        y_pred : pd.Series or pd.DataFrame
             Predictions of the trained model
         """
         labels = pd.DataFrame({"y_true": y_true, "y_pred": y_pred})
@@ -112,10 +138,10 @@ class SequentialEvaluator(Evaluator):
 
         Parameters
         ----------
-        y_true : list
+        y_true : pd.Series or pd.DataFrame
             Ground truth data (original/unseen labels).
 
-        y_pred : list
+        y_pred : pd.Series or pd.DataFrame
             Predictions of the trained model
 
         Returns
@@ -123,6 +149,8 @@ class SequentialEvaluator(Evaluator):
         results : dict
             Dict of calculated metric values labeled by their names.
         """
+        if y_true.isnull().values.any():
+            y_true, y_pred = self._drop_na(y_true, y_pred)
 
         results = {}
         for evaluator in self.evaluators_list:
@@ -135,10 +163,10 @@ class SequentialEvaluator(Evaluator):
 
         Parameters
         ----------
-        y_true : list
+        y_true : pd.Series or pd.DataFrame
             Ground truth data (original/unseen labels).
 
-        y_pred : list
+        y_pred : pd.Series or pd.DataFrame
             Predictions of the trained model
         """
         if self.visualize_only_last:
@@ -175,10 +203,10 @@ class UniversalEvaluator(Evaluator):
 
         Parameters
         ----------
-        y_true : list
+        y_true : pd.Series or pd.DataFrame
             Ground truth data (original/unseen labels).
 
-        y_pred : list
+        y_pred : pd.Series or pd.DataFrame
             Predictions of the trained model
 
         Returns
@@ -186,6 +214,8 @@ class UniversalEvaluator(Evaluator):
         results : dict
             Dict of calculated metric values labeled by their names.
         """
+        if y_true.isnull().values.any():
+            y_true, y_pred = self._drop_na(y_true, y_pred)
 
         results = {}
         for metric in self.metrics:
@@ -215,10 +245,10 @@ class ClassificationEvaluator(Evaluator):
 
         Parameters
         ----------
-        y_true : list
+        y_true : pd.Series or pd.DataFrame
             Ground truth data (original/unseen labels).
 
-        y_pred : list
+        y_pred : pd.Series or pd.DataFrame
             Predictions of the trained model
 
         Returns
@@ -226,6 +256,9 @@ class ClassificationEvaluator(Evaluator):
         results : dict
             Dict of calculated metric values labeled by their names.
         """
+        if y_true.isnull().values.any():
+            y_true, y_pred = self._drop_na(y_true, y_pred)
+
         acc = accuracy_score(y_true, y_pred)
         conf_mat = confusion_matrix(y_true, y_pred)
 
@@ -273,10 +306,10 @@ class RegressionEvaluator(Evaluator):
 
         Parameters
         ----------
-        y_true : list
+        y_true : pd.Series or pd.DataFrame
             Ground truth data (original/unseen labels).
 
-        y_pred : list
+        y_pred : pd.Series or pd.DataFrame
             Predictions of the trained model
 
         Returns
@@ -284,6 +317,9 @@ class RegressionEvaluator(Evaluator):
         results : dict
             Dict of calculated metric values labeled by their names.
         """
+        if y_true.isnull().values.any():
+            y_true, y_pred = self._drop_na(y_true, y_pred)
+
         mae = mean_absolute_error(y_true=y_true, y_pred=y_pred)
         mse = mean_squared_error(y_true=y_true, y_pred=y_pred)
         rmse = np.sqrt(mse)
