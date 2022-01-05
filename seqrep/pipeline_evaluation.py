@@ -110,72 +110,74 @@ class PipelineEvaluator(Picklable):
         """
 
         self._log("Labeling data")
-        labels = self.labeler.transform(data)
+        self.labels = self.labeler.transform(data)
         if "labeler" in self.visualize:
-            self.labeler.visualize(labels=labels)
+            self.labeler.visualize(labels=self.labels)
 
         self._log("Splitting data")
-        X_train, X_test, y_train, y_test = self.splitter.transform(X=data, y=labels)
+        self.X_train, self.X_test, self.y_train, self.y_test = self.splitter.transform(
+            X=data, y=self.labels
+        )
         if "splitter" in self.visualize:
-            self.splitter.visualize(X=[X_train, X_test])
+            self.splitter.visualize(X=[self.X_train, self.X_test])
 
         if self.pipeline is not None:
             self._log("Fitting pipeline")
-            X_train = self.pipeline.fit_transform(X_train, y_train)
+            self.X_train = self.pipeline.fit_transform(self.X_train, self.y_train)
             self._log("Applying pipeline transformations")
-            X_test = self.pipeline.transform(X_test)
+            self.X_test = self.pipeline.transform(self.X_test)
 
         if self.dropna:
-            X_train, y_train = self._drop_na(X=X_train, y=y_train)
-            X_test, y_test = self._drop_na(X=X_test, y=y_test)
+            self.X_train, self.y_train = self._drop_na(X=self.X_train, y=self.y_train)
+            self.X_test, self.y_test = self._drop_na(X=self.X_test, y=self.y_test)
 
         if "pipeline" in self.visualize:
             visualize_data(
-                X=X_train,
-                y=y_train,
+                X=self.X_train,
+                y=self.y_train,
                 downprojector=self.downprojector,
                 title="Visualization of pipeline output",
             )
 
         if self.feature_reductor is not None:
             self._log("Applying feature reduction")
-            self.feature_reductor.fit(X_train, y_train)
-            X_train = self.feature_reductor.transform(X_train)
-            X_test = self.feature_reductor.transform(X_test)
+            self.feature_reductor.fit(self.X_train, self.y_train)
+            self.X_train = self.feature_reductor.transform(self.X_train)
+            self.X_test = self.feature_reductor.transform(self.X_test)
             if "feature_reductor" in self.visualize:
                 self.feature_reductor.visualize(
-                    X=X_train,
-                    y=y_train,
+                    X=self.X_train,
+                    y=self.y_train,
                     downprojector=self.downprojector,
                     title="Visualization of FeatureReductor output",
                 )
 
         if self.model is not None:
             self._log("Fitting model")
-            self.model.fit(X_train, y_train)
+            self.model.fit(self.X_train, self.y_train)
             if "model" in self.visualize:
-                y_pred = self.model.predict(X_train)
-                if len(y_pred.shape) == 1 or y_pred.shape[1] == 1:
-                    y_pred = pd.Series(y_pred, index=X_train.index)
+                self.y_pred = self.model.predict(self.X_train)
+                if len(self.y_pred.shape) == 1 or self.y_pred.shape[1] == 1:
+                    self.y_pred = pd.Series(self.y_pred, index=self.X_train.index)
                 else:
-                    y_pred = pd.DataFrame(y_pred, index=X_train.index)
+                    self.y_pred = pd.DataFrame(self.y_pred, index=self.X_train.index)
                 visualize_labels(
-                    labels=pd.DataFrame({"y_true": y_train, "y_pred": y_pred}),
+                    labels=pd.DataFrame(
+                        {"y_true": self.y_train, "y_pred": self.y_pred}
+                    ),
                     title="Visualize TRAIN predictions and true values",
                 )
 
             self._log("Predicting")
-            y_pred = self.model.predict(X_test)
-            if len(y_pred.shape) == 1 or y_pred.shape[1] == 1:
-                y_pred = pd.Series(y_pred, index=X_test.index)
+            self.y_pred = self.model.predict(self.X_test)
+            if len(self.y_pred.shape) == 1 or self.y_pred.shape[1] == 1:
+                self.y_pred = pd.Series(self.y_pred, index=self.X_test.index)
             else:
-                y_pred = pd.DataFrame(y_pred, index=X_test.index)
+                self.y_pred = pd.DataFrame(self.y_pred, index=self.X_test.index)
 
             if self.evaluator is not None:
                 self._log("Evaluating predictions")
-                result = self.evaluator.evaluate(y_true=y_test, y_pred=y_pred)
+                result = self.evaluator.evaluate(y_true=self.y_test, y_pred=self.y_pred)
                 if "evaluator" in self.visualize:
-                    self.evaluator.visualize(y_true=y_test, y_pred=y_pred)
+                    self.evaluator.visualize(y_true=self.y_test, y_pred=self.y_pred)
                 return result
-
-        return X_train, X_test, y_train, y_test
