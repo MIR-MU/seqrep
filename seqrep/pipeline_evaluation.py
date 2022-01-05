@@ -24,8 +24,8 @@ class PipelineEvaluator(Picklable):
 
     def __init__(
         self,
-        labeler: Labeler,
-        splitter: Splitter,
+        labeler: Labeler = None,
+        splitter: Splitter = None,
         pipeline: Pipeline = None,
         feature_reductor: FeatureReductor = None,
         model=None,
@@ -109,17 +109,22 @@ class PipelineEvaluator(Picklable):
             Dict of calculated metric values labeled by their names.
         """
 
-        self._log("Labeling data")
-        self.labels = self.labeler.transform(data)
-        if "labeler" in self.visualize:
-            self.labeler.visualize(labels=self.labels)
+        if self.labeler is not None:
+            self._log("Labeling data")
+            self.labels = self.labeler.transform(data)
+            if "labeler" in self.visualize:
+                self.labeler.visualize(labels=self.labels)
 
-        self._log("Splitting data")
-        self.X_train, self.X_test, self.y_train, self.y_test = self.splitter.transform(
-            X=data, y=self.labels
-        )
-        if "splitter" in self.visualize:
-            self.splitter.visualize(X=[self.X_train, self.X_test])
+        if self.splitter is not None:
+            self._log("Splitting data")
+            (
+                self.X_train,
+                self.X_test,
+                self.y_train,
+                self.y_test,
+            ) = self.splitter.transform(X=data, y=self.labels)
+            if "splitter" in self.visualize:
+                self.splitter.visualize(X=[self.X_train, self.X_test])
 
         if self.pipeline is not None:
             self._log("Fitting pipeline")
