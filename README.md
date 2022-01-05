@@ -99,6 +99,6 @@ This package is licensed under the [MIT license](LICENSE), so it is open source.
 
 ## Acknowledgement
 
-Thanks for the huge support to my supervisor [Michal Stefanik](https://github.com/stefanik12)! Gratitude also belongs to all members of the [MIR-MU](https://github.com/MIR-MU/) group. Finally, thanks go to the Faculty of Informatics of Masaryk University for supporting this project as a dean's project.
+Thanks for the huge support to my supervisor [Michal Stefanik](https://github.com/stefanik12)! Gratitude also belongs to all members of the [MIR-MU](https://github.com/MIR-MU/) group. Finally, thanks go to the Faculty of Informatics of Masaryk University for supporting [this project](https://www.muni.cz/en/research/projects/58471) as a dean's project.
 
 [![](https://img.shields.io/badge/back%20to%20top-%E2%86%A9-blue)](#seqrep)
