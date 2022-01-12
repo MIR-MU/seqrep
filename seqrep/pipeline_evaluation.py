@@ -94,7 +94,7 @@ class PipelineEvaluator(Picklable):
         )
         return X, y
 
-    def run(self, data):
+    def run(self, data=None):
         """
         Run each module on provided data.
 
