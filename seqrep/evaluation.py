@@ -279,10 +279,10 @@ class ClassificationEvaluator(Evaluator):
         report = classification_report(y_true, y_pred)
         print(report)
         results = {
-            "accuracy": acc * 100,
-            "precision": prec * 100,
-            "recall": rec * 100,
-            "confusion matrix": conf_mat,
+            "accuracy_score": acc,
+            "precision_score": prec,
+            "recall_score": rec,
+            "confusion_matrix": conf_mat,
         }
         return results
 

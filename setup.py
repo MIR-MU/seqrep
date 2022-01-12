@@ -11,7 +11,6 @@ setup(
     packages=["seqrep"],
     install_requires=[
         "hrv_analysis>=1.0.4",
-        "numpy>=1.20.3",
         "numpy_ext>=0.9.6",
         "pandas>=1.1.5",
         "pandas_ta>=0.3.14b0",
@@ -21,7 +20,7 @@ setup(
         "tqdm>=4.62.3",
     ],
     tests_require=["pytest"],
-    version="0.0.0",
+    version="0.0.2",
     license="MIT",
     description="Scientific framework for representation in sequential data",
     long_description=readme,
