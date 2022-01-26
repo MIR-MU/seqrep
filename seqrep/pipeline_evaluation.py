@@ -5,7 +5,7 @@ This module runs all the steps used and allows you to visualize them.
 """
 
 import datetime
-from typing import List, Tuple, Union
+from typing import Callable, List, Tuple, Union
 
 import pandas as pd
 from sklearn.pipeline import Pipeline
@@ -20,6 +20,38 @@ from .utils import Picklable, visualize_data, visualize_labels
 class PipelineEvaluator(Picklable):
     """
     PipelineEvaluator contains all modules and triggers them.
+
+    Parameters
+    ----------
+    labeler: Labeler, optional
+        Object of labeling module.
+
+    splitter: Splitter, optional
+        Object of splitting module.
+
+    pipeline: Pipeline, optional
+        Pipeline object.
+
+    feature_reductor: FeatureReductor, optional
+        Object of feature_reduction module.
+
+    model: Callable, optional
+        Any model containing fit and predict methods.
+
+    evaluator: Evaluator, optional
+        Object of evaluation module.
+
+    dropna: bool, default True
+        Whether to exclude NaN values.
+
+    downprojector: Callable, optional
+        Downprojector for visualization purpose.
+
+    visualize: Union[bool, List[str]], default False
+        Whether or what modules are to be visualized.
+
+    verbose: bool, default True
+        Whether to print running process info.
     """
 
     def __init__(
@@ -28,10 +60,10 @@ class PipelineEvaluator(Picklable):
         splitter: Splitter = None,
         pipeline: Pipeline = None,
         feature_reductor: FeatureReductor = None,
-        model=None,
+        model: Callable = None,
         evaluator: Evaluator = None,
         dropna: bool = True,
-        downprojector=None,
+        downprojector: Callable = None,
         visualize: Union[bool, List[str]] = False,
         verbose: bool = True,
     ):
