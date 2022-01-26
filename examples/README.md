@@ -30,6 +30,14 @@ A table comparing the results is attached at the end.
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/RegressionExample-Temperature.ipynb)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MIR-MU/seqrep/main?labpath=examples%2FRegressionExample-Temperature.ipynb)
 
+## Regression Example - Household Electric Power Consumption
+The second [regression example](RegressionExample-Electric_Power_Constumption.ipynb) works with _household electric power consumption_ data.
+
+As in the example with temperature, three approaches of different complexity are evaluated.
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MIR-MU/seqrep/blob/main/examples/RegressionExample-Electric_Power_Constumption.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MIR-MU/seqrep/main?labpath=examples%2FRegressionExample-Electric_Power_Constumption.ipynb).
+
 &nbsp;
 
 [![](https://img.shields.io/badge/back%20to%20top-%E2%86%A9-blue)](#examples)
