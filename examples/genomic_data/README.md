@@ -1,6 +1,3 @@
-### Readme - examples.genomic_data
-------------------------------------------
-
 # Genomic Data
 
 The genomic datasets are taken from [here](https://github.com/ML-Bioinfo-CEITEC/genomic_benchmarks). 
